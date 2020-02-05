@@ -1,5 +1,5 @@
 var titlePrefix = 'FTC';
-var currentProjectName;
+var currentProjectName = "XXX";
 var currentClassName = '';
 var isDirty = false;
 var missingHardware = [];
