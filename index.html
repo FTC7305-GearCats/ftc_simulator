@@ -18,11 +18,27 @@
       <block type="math_arithmetic"></block>
       <block type="text"></block>
       <block type="text_print"></block>
+      <block type="dcMotor_setProperty_Direction"></block>
     </xml>
 
     <script src="blockly/blockly_compressed.js"></script>
+    <script src="blockly/javascript_compressed.js"></script>
+    <script>
+     Blockly.FtcJava = {}
+     function createDcMotorDropdown() {
+       var MOTOR_CHOICES = [
+         ['FLMotor', 'FLMotor'],
+         ['FRMotor', 'FRMotor'],
+         ['BLMotor', 'BLMotor'],
+         ['BRMotor', 'BRMotor'],
+       ];
+       return new Blockly.FieldDropdown(MOTOR_CHOICES);
+     }
+    </script>
     <script src="blockly/blocks_compressed.js"></script>
     <script src="blockly/msg/js/en.js"></script>
+    <script src="blocks/vars.js"></script>
+    <script src="blocks/dc_motor.js"></script>
 
     <script>
      var workspace = 
