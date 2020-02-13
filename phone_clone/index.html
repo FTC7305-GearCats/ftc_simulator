@@ -32,7 +32,8 @@
         var currentUri = theIframe.contentWindow.document.URL;
         var id = "";
         if (currentUri.indexOf("/") !== -1) {
-            id = currentUri.replace(/http(?:s|):\/\/[.\d:]+\//, '');
+            // DLW id = currentUri.replace(/http(?:s|):\/\/[.\d:]+\//, '');
+            id = currentUri.replace(/http(?:s|):\/\/[.\d\w:]+\//, '');
         }
 
         if (id !== "") {
