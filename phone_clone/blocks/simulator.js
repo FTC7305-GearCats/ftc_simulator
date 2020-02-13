@@ -1,8 +1,3 @@
-function runSimulator() {
-  Blockly.JavaScript.addReservedWords('code');
-  var code = Blockly.JavaScript.workspaceToCode(workspace);
-  code = code + `
-
 var linearOpMode = {
   count: 20,
   waitForStart: function() {},
@@ -21,10 +16,12 @@ var telemetry = {
   update: function() {}
 };
 
-runOpMode();
-`;
+function runSimulator() {
+  Blockly.JavaScript.addReservedWords('code');
+  var code = Blockly.JavaScript.workspaceToCode(workspace);
+  code = Function(code + "runOpMode();");
   try {
-    eval(code);
+    code();
   } catch (e) {
     console.log(e);
   }
