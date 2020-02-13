@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -314,12 +314,12 @@
 
     window.onresize=resizeIframe;
     less.pageLoadFinished.then(resizeIframe);
-    less.pageLoadFinished.then(function() {
-        sendPingRequest();
-        setInterval(function() {
-          sendPingRequest();
-        }, 2000);
-    });
+    // less.pageLoadFinished.then(function() {
+    //     sendPingRequest();
+    //     setInterval(function() {
+    //       sendPingRequest();
+    //     }, 2000);
+    // });
     less.pageLoadFinished.then(navigateToPageInQueryString);
     less.pageLoadFinished.then(function() {
         console.log("finished loading");
