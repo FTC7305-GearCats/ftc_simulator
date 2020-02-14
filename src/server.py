@@ -1,9 +1,23 @@
 #!/usr/bin/env python3
 
-from bottle import route, run
+import bottle
+import sqlite3
 
-@route('/fetch_blk')
+conn = sqlite3.connect("../data/blocks.db")
+
+@bottle.route("/fetch_blk")
 def fetch_blk():
     return "Hello"
 
-run(host="localhost", port=8080)
+@bottle.route("/list")
+def list():
+    c = conn.cursor()
+    c.execute("""SELECT (dateModifiedMillis, enabled, escapedName, name)
+                 FROM blocks""")
+    print(c.fetchall())
+
+@bottle.route("/<path:path>")
+def static(path):
+    return bottle.static_file(path, root="../static")
+
+bottle.run(host="localhost", port=8080)
