@@ -201,8 +201,7 @@ function openProjectBlocksViaHttp(projectName) {
 function fetchBlkFileContentViaHttp(projectName, callback) {
   var xhr = new XMLHttpRequest();
   var params = PARAM_NAME + '=' + encodeURIComponent(projectName);
-  // DLW xhr.open('POST', URI_FETCH_BLK, true);
-  xhr.open('GET', URI_FETCH_BLK, true);
+  xhr.open('POST', URI_FETCH_BLK, true);
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
@@ -336,8 +335,7 @@ function deleteProjectsViaHttp(starDelimitedProjectNames, callback) {
 function getBlocksJavaClassNameViaHttp(projectName, callback) {
   var xhr = new XMLHttpRequest();
   var params = PARAM_NAME + '=' + encodeURIComponent(projectName);
-  // DLW xhr.open('POST', URI_GET_BLOCKS_JAVA_CLASS_NAME, true);
-  xhr.open('GET', URI_GET_BLOCKS_JAVA_CLASS_NAME, true);
+  xhr.open('POST', URI_GET_BLOCKS_JAVA_CLASS_NAME, true);
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {

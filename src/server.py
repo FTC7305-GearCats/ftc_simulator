@@ -3,6 +3,7 @@
 import bottle
 import sqlite3
 import json
+import os
 
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
 conn = sqlite3.connect("../data/blocks.db",
@@ -20,6 +21,17 @@ def list():
                  FROM blocks""")
     data = c.fetchall()
     return json.dumps([dict(r) for r in data])
+
+@bottle.route("/get_blocks_java_class_name", method="POST")
+def get_blocks_java_class_name():
+    # XXX Need to figure out what this endpoint does.
+    return "_" + bottle.request.forms.get("name")
+
+@bottle.route("/fetch_blk", method="POST")
+def fetch_blk():
+    # XXX Look up the encoded filename?
+    name = bottle.request.forms.get("name")
+    return bottle.static_file(name, root="../data/programs")
 
 @bottle.route("/<path:path>")
 def static(path):
