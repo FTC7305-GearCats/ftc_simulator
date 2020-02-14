@@ -1,18 +1,11 @@
-// simulator time in ms.
-var simulatorTime = 0;
-
-function getSimulatorTime() {
-  return simulatorTime;
-}
+var last = null;
+var sleepCallback = null;
+var sleepRemaining = 0;
 
 var linearOpMode = {
   waitForStart: function() {},
   opModeIsActive: function() {
     return true;
-  },
-  sleep: function(ms) {
-    // XXX
-    console.log("sleep", ms);
   },
 };
 
@@ -74,6 +67,13 @@ var createDcMotor = function(interpreter, scope, name) {
 var initFunc = function(interpreter, scope) {
   var lom = interpreter.nativeToPseudo(linearOpMode);
   interpreter.setProperty(scope, 'linearOpMode', lom);
+  var sleep = function(ms, callback) {
+    console.log("sleep", ms);
+    sleepCallback = callback;
+    sleepRemaining = ms;
+  };
+  interpreter.setProperty(lom, 'sleep',
+      interpreter.createAsyncFunction(sleep));
 
   var tel = interpreter.nativeToPseudo(telemetry);
   interpreter.setProperty(scope, 'telemetry', tel);
@@ -90,12 +90,28 @@ function runSimulator() {
   var myInterpreter = new Interpreter(code, initFunc);
   myInterpreter.appendCode('runOpMode();');
 
+  function nextStep(timestamp) {
+    var stop = window.requestAnimationFrame(nextStep);
 
-  function nextStep() {
-    if (myInterpreter.step()) {
-      window.setTimeout(nextStep, 10);
+    if (!last) {
+      last = timestamp;
+    }
+    var delta = timestamp - last;
+    last = timestamp;
+    if (sleepCallback) {
+      sleepRemaining -= delta;
+      if (sleepRemaining <= 0) {
+        console.log("done sleeping");
+        sleepCallback();
+        sleepCallback = null;
+        sleepRemaining = 0;
+      }
+    }
+    if (!myInterpreter.step()) {
+      // It's done running, abort the next frame.
+      window.cancelAnimationFrame(stop);
     }
   }
-  nextStep();
+  window.requestAnimationFrame(nextStep);
 }
 
