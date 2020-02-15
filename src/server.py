@@ -46,7 +46,6 @@ def get_blocks_java_class_name():
 
 @bottle.route("/fetch_blk", method="POST")
 def fetch_blk():
-    # XXX Look up the encoded filename?
     name = bottle.request.forms.get("name")
     return bottle.static_file(name + ".blk", root="../data/programs")
 
@@ -85,8 +84,8 @@ def save():
               [now_ms, name])
     conn.commit()
 
-    # XXX Fix path traversal.
-    with open(os.path.join("../data/programs", name + ".blk"), "w") as f:
+    fn = safe_path("../data/programs", name + ".blk")
+    with open(fn, "w") as f:
         f.write(blk)
 
 @bottle.route("/delete", method="POST")
@@ -98,9 +97,6 @@ def delete():
         fn = safe_path("../data/programs", name + ".blk")
         fn.unlink()
         conn.commit()
-
-
-
 
 @bottle.route("/<path:path>")
 def static(path):
