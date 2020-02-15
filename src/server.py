@@ -41,7 +41,9 @@ def samples():
 
 @bottle.route("/get_blocks_java_class_name", method="POST")
 def get_blocks_java_class_name():
-    # XXX Need to figure out what this endpoint does.
+    # For now, this is good enough, but it's not a real substitute
+    # for the real code, which really tries to construct a valid Java
+    # class name.
     return "_" + bottle.request.forms.get("name")
 
 @bottle.route("/fetch_blk", method="POST")
