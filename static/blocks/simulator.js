@@ -85,6 +85,8 @@ var initFunc = function(interpreter, scope) {
 };
 
 function runSimulator() {
+  document.getElementById('simulatorModal').style.display = 'block';
+
   Blockly.JavaScript.addReservedWords('code');
   var code = Blockly.JavaScript.workspaceToCode(workspace);
   var myInterpreter = new Interpreter(code, initFunc);
