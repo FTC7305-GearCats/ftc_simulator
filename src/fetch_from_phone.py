@@ -18,7 +18,8 @@ for prog in programs:
               prog)
     data = {"name": prog["name"]}
     r = httpx.post("http://192.168.49.1:8080/fetch_blk", data=data)
-    with open(os.path.join("../data/programs", prog["escapedName"]), "w") as f:
+    fn = os.path.join("../data/programs", prog["name"] + ".blk")
+    with open(fn, "w") as f:
         f.write(r.text)
 
 r = httpx.get("http://192.168.49.1:8080/samples")
@@ -30,10 +31,6 @@ for samp in samples:
                  (?, ?, ?)""",
               [samp["escapedName"], samp["name"],
                json.dumps(samp["requestedCapabilities"])])
-    data = {"name": samp["name"]}
-    r = httpx.post("http://192.168.49.1:8080/fetch_blk", data=data)
-    with open(os.path.join("../data/samples", samp["escapedName"]), "w") as f:
-        f.write(r.text)
 
 conn.commit()
 conn.close()
