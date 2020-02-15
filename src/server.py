@@ -79,11 +79,20 @@ def save():
     blk = bottle.request.forms.get("blk")
 
     now_ms = int(round(datetime.datetime.utcnow().timestamp() * 1000))
+    prog = {
+        "dateModifiedMillis": now_ms,
+        "enabled": True,
+        "escapedName": html.escape(name),
+        "name": name,
+    }
     c = conn.cursor()
-    c.execute("""UPDATE blocks
-                 SET dateModifiedMillis = ?
-                 WHERE name = ?""",
-              [now_ms, name])
+    c.execute("""INSERT INTO blocks
+                   (dateModifiedMillis, enabled, escapedName, name)
+                 VALUES
+                   (:dateModifiedMillis, :enabled, :escapedName, :name)
+                 ON CONFLICT(name) DO UPDATE
+                   SET dateModifiedMillis = :dateModifiedMillis""",
+              prog)
     conn.commit()
 
     fn = safe_path("../data/programs", name + ".blk")
