@@ -109,6 +109,19 @@ def delete():
         fn.unlink()
         conn.commit()
 
+@bottle.route("/rename", method="POST")
+def rename():
+    name = bottle.request.forms.get("name")
+    new_name = bottle.request.forms.get("new_name")
+
+    c = conn.cursor()
+    c.execute("UPDATE blocks SET name = ?, escapedName = ? WHERE name = ?",
+              [new_name, html.escape(new_name), name])
+    old_fn = safe_path("../data/programs", name + ".blk")
+    new_fn = safe_path("../data/programs", new_name + ".blk")
+    old_fn.rename(new_fn)
+    conn.commit()
+
 @bottle.route("/<path:path>")
 def static(path):
     return bottle.static_file(path, root="../static")
