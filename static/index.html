@@ -41,7 +41,8 @@
             if (document.URL.indexOf('?') === -1) {
                 newDocLocation = document.URL;
             } else {
-                newDocLocation = document.URL.substring(0, document.URL.indexOf('?') - 1);
+                // DLW newDocLocation = document.URL.substring(0, document.URL.indexOf('?') - 1);
+                newDocLocation = document.URL.substring(0, document.URL.indexOf('?'));
             }
 
             newDocLocation += "?page=";
