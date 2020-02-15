@@ -122,6 +122,11 @@ def rename():
     old_fn.rename(new_fn)
     conn.commit()
 
+@bottle.route("/")
+def static_index():
+    # XXX Hack, should just fix below to work correctly.
+    return bottle.static_file("index.html", root="../static")
+
 @bottle.route("/<path:path>")
 def static(path):
     return bottle.static_file(path, root="../static")
