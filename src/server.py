@@ -6,6 +6,7 @@ import json
 import os
 
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
+sqlite3.register_converter("JSON", lambda v: json.loads(v))
 conn = sqlite3.connect("../data/blocks.db",
                        detect_types=sqlite3.PARSE_DECLTYPES)
 conn.row_factory = sqlite3.Row
@@ -19,6 +20,14 @@ def list():
     c = conn.cursor()
     c.execute("""SELECT dateModifiedMillis, enabled, escapedName, name
                  FROM blocks""")
+    data = c.fetchall()
+    return json.dumps([dict(r) for r in data])
+
+@bottle.route("/samples")
+def samples():
+    c = conn.cursor()
+    c.execute("""SELECT escapedName, name, requestedCapabilities
+                 FROM samples""")
     data = c.fetchall()
     return json.dumps([dict(r) for r in data])
 
