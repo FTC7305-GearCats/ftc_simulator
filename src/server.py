@@ -6,12 +6,22 @@ import json
 import os
 import html
 import datetime
+import pathlib
 
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
 sqlite3.register_converter("JSON", lambda v: json.loads(v))
 conn = sqlite3.connect("../data/blocks.db",
                        detect_types=sqlite3.PARSE_DECLTYPES)
 conn.row_factory = sqlite3.Row
+
+def safe_path(base, path):
+    basepath = pathlib.Path(base)
+    fn = basepath / path
+    basepath = basepath.resolve()
+    fn = fn.resolve()
+    if fn.parent != basepath:
+        raise Error("Invalid path!")
+    return fn
 
 @bottle.route("/list")
 def list():
@@ -78,6 +88,19 @@ def save():
     # XXX Fix path traversal.
     with open(os.path.join("../data/programs", name + ".blk"), "w") as f:
         f.write(blk)
+
+@bottle.route("/delete", method="POST")
+def delete():
+    names = bottle.request.forms.get("name").split("*")
+    c = conn.cursor()
+    for name in names:
+        c.execute("DELETE FROM blocks WHERE name = ?", [name])
+        fn = safe_path("../data/programs", name + ".blk")
+        fn.unlink()
+        conn.commit()
+
+
+
 
 @bottle.route("/<path:path>")
 def static(path):
