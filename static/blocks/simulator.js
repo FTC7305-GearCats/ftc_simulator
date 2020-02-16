@@ -78,6 +78,10 @@ function Robot() {
                      "BLmotorAsDcMotor",
                      "BRmotorAsDcMotor"];
 
+  // Points on the trail that the robot has traversed.
+  this.trail_add_point = false;
+  this.trail = [];
+
   this.setPower = function(motor, power) {
     console.log(motor, power);
     var index = this.motor_names.indexOf(motor);
@@ -85,6 +89,9 @@ function Robot() {
       return;
     }
     this.omega[index] = power * this.max_motor_angular_speed;
+
+    // Potentially changing or direction, add a new point.
+    this.trail_add_point = true;
   };
 
   this.calculate_speed = function() {
@@ -118,11 +125,21 @@ function Robot() {
     this.angle += dO;
   };
 
+  this.update_trail = function() {
+    if (this.trail_add_point) {
+      this.trail_add_point = false;
+    } else {
+      this.trail.pop();
+    }
+    this.trail.push([this.x, this.y]);
+  };
+
   this.update = function(delta) {
     var delta_sec = delta / 1000;
 
     this.calculate_speed();
     this.calculate_position(delta_sec);
+    this.update_trail();
   };
 }
 
@@ -174,10 +191,17 @@ var initFunc = function(interpreter, scope) {
   createDcMotor(interpreter, scope, "BRmotorAsDcMotor");
 };
 
+function update_trail(dom) {
+  // XXX Are arrow functions portable?
+  var points = realRobot.trail.map(p => `L ${p[0]} ${p[1]}`);
+  dom.setAttribute('d', "M 0 0 " + points.join(' '));
+}
+
 function runSimulator() {
   document.getElementById('simulatorModal').style.display = 'block';
 
   var robot_dom = document.getElementById('robot');
+  var trail_dom = document.getElementById('robot_trail');
 
   Blockly.JavaScript.addReservedWords('code');
   var code = Blockly.JavaScript.workspaceToCode(workspace);
@@ -209,6 +233,8 @@ function runSimulator() {
       realRobot.update(delta);
       robot_dom.setAttribute('x', realRobot.x);
       robot_dom.setAttribute('y', realRobot.y);
+
+      update_trail(trail_dom);
     }
 
   }
