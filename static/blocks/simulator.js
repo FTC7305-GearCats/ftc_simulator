@@ -31,6 +31,46 @@ var telemetry = {
 };
 
 function Robot() {
+  // Lengths are in cm.
+
+  // Radius: assume wheel is 100mm in diameter.
+  this.r = 5.0;
+  // Center point to middle of wheels in z dimension (width).
+  this.l1 = 6.0;
+  // Center point to middle of wheels in x dimension (length).
+  this.l2 = 16.8;
+
+  // Maximum wheel linear speed (cm/s) (based on 3.73'/sec).
+  self.max_motor_linear_speed = 113.69;
+
+  // Maximum wheel angular speed (rad/s) (based on 435 RPM * 2).
+  self.max_motor_angular_speed = 91.11;
+
+  // Position in the svg world.
+  this.x = 0;
+  this.y = 0;
+
+  // Velocities relative to the robot.
+  // x positive is forward.
+  // z positive is to the right.
+  // omega0 positive is counter clockwise.
+  this.vx = 0;
+  this.vy = 0;
+  this.omega0 = 0;
+
+  // Angular velocities of the wheels.
+  // Positive values correspond to moving the robot forward.
+  // Values are FL, FR, BL, BR.
+  this.omega = [0.0, 0.0, 0.0, 0.0];
+
+  // Multiplication vectors.
+  this.vx_mult = [1.0, 1.0, 1.0, 1.0];
+  this.vz_mult = [1.0, -1.0, -1.0, 1.0];
+  this.omega0_mult= [-1/(self.l1 + self.l2),
+                     1/(self.l1 + self.l2),
+                     -1/(self.l1 + self.l2),
+                     1/(self.l1 + self.l2)];
+
   this.setPower = function(motor, power) {
     console.log(motor, power);
   };
