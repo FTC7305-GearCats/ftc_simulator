@@ -110,14 +110,12 @@ function Robot() {
     var dO = this.omega0 * delta_sec;
 
     // Now convert to svg coordinates by rotating.
-    var nx = (dx * Math.cos(this.angle)) - (dz * Math.sin(this.angle));
-    var ny = (dx * Math.sin(this.angle)) + (dz * Math.cos(this.angle));
+    var nx = (dz * Math.cos(this.angle)) - (dx * Math.sin(this.angle));
+    var ny = (dz * Math.sin(this.angle)) + (dx * Math.cos(this.angle));
 
     this.x += nx;
     this.y += ny;
     this.angle += dO;
-
-    console.log(this.x, this.y);
   };
 
   this.update = function(delta) {
