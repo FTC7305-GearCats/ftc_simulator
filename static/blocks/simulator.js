@@ -49,13 +49,14 @@ function Robot() {
   // Position in the svg world.
   this.x = 0;
   this.y = 0;
+  this.rotation = 0;
 
   // Velocities relative to the robot.
   // x positive is forward.
   // z positive is to the right.
   // omega0 positive is counter clockwise.
   this.vx = 0;
-  this.vy = 0;
+  this.vz = 1.0; // XXX
   this.omega0 = 0;
 
   // Angular velocities of the wheels.
@@ -73,6 +74,12 @@ function Robot() {
 
   this.setPower = function(motor, power) {
     console.log(motor, power);
+  };
+
+  this.update = function(delta) {
+    var delta_sec = delta / 1000;
+    // XXX Just assume we're moving forward.
+    this.y += this.vz * delta_sec;
   };
 }
 
@@ -127,6 +134,8 @@ var initFunc = function(interpreter, scope) {
 function runSimulator() {
   document.getElementById('simulatorModal').style.display = 'block';
 
+  var robot_dom = document.getElementById('robot');
+
   Blockly.JavaScript.addReservedWords('code');
   var code = Blockly.JavaScript.workspaceToCode(workspace);
   var myInterpreter = new Interpreter(code, initFunc);
@@ -152,7 +161,12 @@ function runSimulator() {
     if (!myInterpreter.step()) {
       // It's done running, abort the next frame.
       window.cancelAnimationFrame(stop);
+    } else {
+      // Update the robot.
+      realRobot.update(delta);
+      robot_dom.setAttribute('y', realRobot.y);
     }
+
   }
   window.requestAnimationFrame(nextStep);
 }
