@@ -41,22 +41,23 @@ function Robot() {
   this.l2 = 16.8;
 
   // Maximum wheel linear speed (cm/s) (based on 3.73'/sec).
-  self.max_motor_linear_speed = 113.69;
+  this.max_motor_linear_speed = 113.69;
 
   // Maximum wheel angular speed (rad/s) (based on 435 RPM * 2).
-  self.max_motor_angular_speed = 91.11;
+  this.max_motor_angular_speed = 91.11;
 
-  // Position in the svg world.
+  // Position/orientation in the svg world.
   this.x = 0;
   this.y = 0;
-  this.rotation = 0;
+  // In radians, positve is clockwise.
+  this.angle = 0;
 
   // Velocities relative to the robot.
   // x positive is forward.
   // z positive is to the right.
   // omega0 positive is counter clockwise.
   this.vx = 0;
-  this.vz = 1.0; // XXX
+  this.vz = 0;
   this.omega0 = 0;
 
   // Angular velocities of the wheels.
@@ -67,19 +68,63 @@ function Robot() {
   // Multiplication vectors.
   this.vx_mult = [1.0, 1.0, 1.0, 1.0];
   this.vz_mult = [1.0, -1.0, -1.0, 1.0];
-  this.omega0_mult= [-1/(self.l1 + self.l2),
-                     1/(self.l1 + self.l2),
-                     -1/(self.l1 + self.l2),
-                     1/(self.l1 + self.l2)];
+  this.omega0_mult= [-1/(this.l1 + this.l2),
+                     1/(this.l1 + this.l2),
+                     -1/(this.l1 + this.l2),
+                     1/(this.l1 + this.l2)];
+
+  this.motor_names =["FLmotorAsDcMotor",
+                     "FRmotorAsDcMotor",
+                     "BLmotorAsDcMotor",
+                     "BRmotorAsDcMotor"];
 
   this.setPower = function(motor, power) {
     console.log(motor, power);
+    var index = this.motor_names.indexOf(motor);
+    if (index < 0) {
+      return;
+    }
+    this.omega[index] = power * this.max_motor_angular_speed;
+  };
+
+  this.calculate_speed = function() {
+    this.vx = 0;
+    this.vz = 0;
+    this.omega0 = 0;
+
+    for (var i = 0; i < 4; i++) {
+      this.vx += this.vx_mult[i] * this.omega[i];
+      this.vz += this.vz_mult[i] * this.omega[i];
+      this.omega0 += this.omega0_mult[i] * this.omega[i];
+    }
+
+    this.vx *= this.r / 4.0;
+    this.vz *= this.r / 4.0;
+    this.omega0 *= this.r / 40.0;
+  };
+
+  this.calculate_position = function(delta_sec) {
+    // First calculate distances in robot coordinates.
+    var dx = this.vx * delta_sec;
+    var dz = this.vz * delta_sec;
+    var dO = this.omega0 * delta_sec;
+
+    // Now convert to svg coordinates by rotating.
+    var nx = (dx * Math.cos(this.angle)) - (dz * Math.sin(this.angle));
+    var ny = (dx * Math.sin(this.angle)) + (dz * Math.cos(this.angle));
+
+    this.x += nx;
+    this.y += ny;
+    this.angle += dO;
+
+    console.log(this.x, this.y);
   };
 
   this.update = function(delta) {
     var delta_sec = delta / 1000;
-    // XXX Just assume we're moving forward.
-    this.y += this.vz * delta_sec;
+
+    this.calculate_speed();
+    this.calculate_position(delta_sec);
   };
 }
 
@@ -164,6 +209,7 @@ function runSimulator() {
     } else {
       // Update the robot.
       realRobot.update(delta);
+      robot_dom.setAttribute('x', realRobot.x);
       robot_dom.setAttribute('y', realRobot.y);
     }
 
