@@ -110,6 +110,7 @@ function Robot() {
   };
 
   this.setMode = function(motor, mode) {
+    console.log("Mode", motor, mode);
     var index = this.motor_names.indexOf(motor);
     if (index < 0) {
       return;
@@ -125,6 +126,7 @@ function Robot() {
   };
 
   this.setTargetPosition = function(motor, position) {
+    console.log("Target", motor, position);
     var index = this.motor_names.indexOf(motor);
     if (index < 0) {
       return;
@@ -133,7 +135,7 @@ function Robot() {
   };
 
   this.setPower = function(motor, power) {
-    console.log(motor, power);
+    console.log("Power", motor, power);
     var index = this.motor_names.indexOf(motor);
     if (index < 0) {
       return;
@@ -194,9 +196,9 @@ function Robot() {
       this.encoder_ticks[i] += revs * this.quad_encoder_ticks;
       if (this.mode[i] == 'RUN_TO_POSITION') {
         // Don't worry about sign on the encoders.
-        console.log(i, this.target_position[i], this.encoder_ticks[i]);
-        if (Math.abs(this.target_position[i]) >=
-            Math.abs(this.encoder_ticks[i])) {
+        if (Math.abs(this.encoder_ticks[i]) >=
+            Math.abs(this.target_position[i])) {
+          console.log("Stopping!", i, this.target_position, this.encoder_ticks);
           // Mark the motor as not busy, and stop it.
           this.motorIsBusy[i] = false;
           this.omega[i] = 0.0;
