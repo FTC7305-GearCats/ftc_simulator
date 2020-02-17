@@ -145,6 +145,42 @@ function Robot() {
 
 var realRobot = new Robot();
 
+function Camera() {
+  this.world_dom = document.getElementById('world');
+  this.grid_dom = document.getElementById('world_grid');
+
+  // Bounding box where the robot has been.
+  this.min_x = 0;
+  this.max_x = 0;
+  this.min_y = 0;
+  this.max_y = 0;
+
+  this.update = function(x, y) {
+    this.min_x = Math.min(this.min_x, x);
+    this.max_x = Math.max(this.max_x, x);
+    this.min_y = Math.min(this.min_y, y);
+    this.max_y = Math.max(this.max_y, y);
+
+    // Round to multiples of 10.
+    this.min_x = Math.floor(this.min_x / 10) * 10;
+    this.max_x = Math.ceil(this.max_x / 10) * 10;
+    this.min_y = Math.floor(this.min_y / 10) * 10;
+    this.max_y = Math.ceil(this.max_y / 10) * 10;
+
+    var width = this.max_x - this.min_x + 20;
+    var height = this.max_y - this.min_y + 20;
+
+    this.world_dom.setAttribute(
+      'viewBox', `${this.min_x - 10} ${this.min_y - 10} ${width} ${height}`);
+    this.grid_dom.setAttribute('x', this.min_x - 10);
+    this.grid_dom.setAttribute('y', this.min_y - 10);
+    this.grid_dom.setAttribute('width', width);
+    this.grid_dom.setAttribute('height', height);
+  };
+}
+
+var camera = new Camera();
+
 var createDcMotor = function(interpreter, scope, name) {
   var motor = interpreter.nativeToPseudo({});
   interpreter.setProperty(scope, name, motor);
@@ -235,6 +271,7 @@ function runSimulator() {
       robot_dom.setAttribute('y', realRobot.y);
 
       update_trail(trail_dom);
+      camera.update(realRobot.x, realRobot.y);
     }
 
   }
