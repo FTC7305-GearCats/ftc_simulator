@@ -277,7 +277,8 @@ function runSimulator() {
     if (!last) {
       last = timestamp;
     }
-    var delta = timestamp - last;
+    // Don't use a delta larger than 16ms (60 fps).
+    var delta = Math.min(timestamp - last, 16);
     last = timestamp;
     if (sleepCallback) {
       sleepRemaining -= delta;
@@ -288,21 +289,25 @@ function runSimulator() {
         sleepRemaining = 0;
       }
     }
-    if (!myInterpreter.step()) {
-      // It's done running, abort the next frame.
-      window.cancelAnimationFrame(stop);
-      // Stop highlighting blocks.
-      workspace.highlightBlock(null);
-    } else {
-      // Update the robot.
-      realRobot.update(delta);
-      robot_dom.setAttribute('x', realRobot.x);
-      robot_dom.setAttribute('y', realRobot.y);
-
-      update_trail(trail_dom);
-      camera.update(realRobot.x, realRobot.y);
+    // Run 10 instructions.  This should prevent getting half the motors set.
+    for (var i = 0; i < 10; i++) {
+      if (!myInterpreter.step()) {
+        // It's done running, abort the next frame.
+        window.cancelAnimationFrame(stop);
+        // Stop highlighting blocks.
+        workspace.highlightBlock(null);
+        // Break out of the loop.
+        break;
+      }
     }
 
+    // Update the robot.
+    realRobot.update(delta);
+    robot_dom.setAttribute('x', realRobot.x);
+    robot_dom.setAttribute('y', realRobot.y);
+
+    update_trail(trail_dom);
+    camera.update(realRobot.x, realRobot.y);
   }
   window.requestAnimationFrame(nextStep);
 }
