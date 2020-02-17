@@ -255,8 +255,6 @@ function update_trail(dom) {
 }
 
 function runSimulator() {
-  document.getElementById('simulatorModal').style.display = 'block';
-
   var robot_dom = document.getElementById('robot');
   var trail_dom = document.getElementById('robot_trail');
 

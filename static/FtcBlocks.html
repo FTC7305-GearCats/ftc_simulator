@@ -162,7 +162,6 @@
           <button onclick="downloadButtonClicked()">Download Op Mode</button>
           <button id="downloadImageButton" style="display: none" disabled="true"
                   onclick="downloadImageButtonClicked()">Download Image of Blocks</button>
-          <button onclick="runSimulator()">Run Simulator</button>
           <a id="download_link"></a>
           <span id="saveSuccess" style="display: none">Save completed successfully.</span>
           <span id="saveFailure" style="display: none"></span>
@@ -209,24 +208,26 @@
     </div>
     <div class="dragBar" id="dragBar2" draggable="true"></div>
     <div id="simulatorArea" class="vertical_area no_min_width">
-        <svg id="world" width="500px" height="500px" viewbox="-1000 -1000 2000 2000">
-          <defs>
-            <pattern id="grid" width="10" height="10"
-                     patternUnits="userSpaceOnUse">
-              <path d="M 10 0 L 0 0 0 10"
-                    fill="none" stroke="gray" stroke-width="0.5"/>
-            </pattern>
-            <symbol id="robot_diagram">
-              <path d="M 0 0 L 10 10 L 20 0 L 0 0"
-            </symbol>
-          </defs>
-          <rect id="world_grid" fill="url(#grid)"/>
-          <path id="robot_trail" fill="none" stroke="red" />
-          <use id="robot"
-               xlink:href="#robot_diagram"
-               x="0" y="0"
-               transform="translate(-10 -5)" />
-        </svg>
+      <button onclick="runSimulator()">Run Simulator</button>
+      <svg id="world" width="500px" height="500px"
+           viewbox="-1000 -1000 2000 2000">
+        <defs>
+          <pattern id="grid" width="10" height="10"
+                   patternUnits="userSpaceOnUse">
+            <path d="M 10 0 L 0 0 0 10"
+                  fill="none" stroke="gray" stroke-width="0.5"/>
+          </pattern>
+          <symbol id="robot_diagram">
+            <path d="M 0 0 L 10 10 L 20 0 L 0 0"
+          </symbol>
+        </defs>
+        <rect id="world_grid" fill="url(#grid)"/>
+        <path id="robot_trail" fill="none" stroke="red" />
+        <use id="robot"
+             xlink:href="#robot_diagram"
+             x="0" y="0"
+             transform="translate(-10 -5)" />
+      </svg>
     </div>
   </div>
 
