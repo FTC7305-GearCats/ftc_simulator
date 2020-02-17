@@ -187,6 +187,7 @@
       </td>
       <td align="right">
         <input type="checkbox" id="show_java" class="project_row_checkbox" onclick="showJavaChanged()">&nbsp;Show Java&nbsp;&nbsp;
+        <input type="checkbox" id="show_simulator" class="project_row_checkbox" onclick="showJavaChanged()">&nbsp;Show Sim&nbsp;&nbsp;
       </td>
     </tr>
   </table>
@@ -205,6 +206,27 @@
       <div id="javaContentContainer" class="fill_area content_border">
         <pre id="javaContent"></pre>
       </div>
+    </div>
+    <div class="dragBar" id="dragBar2" draggable="true"></div>
+    <div id="simulatorArea" class="vertical_area no_min_width">
+        <svg id="world" width="500px" height="500px" viewbox="-1000 -1000 2000 2000">
+          <defs>
+            <pattern id="grid" width="10" height="10"
+                     patternUnits="userSpaceOnUse">
+              <path d="M 10 0 L 0 0 0 10"
+                    fill="none" stroke="gray" stroke-width="0.5"/>
+            </pattern>
+            <symbol id="robot_diagram">
+              <path d="M 0 0 L 10 10 L 20 0 L 0 0"
+            </symbol>
+          </defs>
+          <rect id="world_grid" fill="url(#grid)"/>
+          <path id="robot_trail" fill="none" stroke="red" />
+          <use id="robot"
+               xlink:href="#robot_diagram"
+               x="0" y="0"
+               transform="translate(-10 -5)" />
+        </svg>
     </div>
   </div>
 
@@ -228,33 +250,6 @@
       </table>
     </center>
   </div></div></div>
-
-  <div id="simulatorModal" class="modal_dialog">
-    <div class="modal_dialog_container">
-      <div class="modal_dialog_content">
-        <h3>Hello</h3>
-
-        <svg id="world" width="500px" height="500px" viewbox="-1000 -1000 2000 2000">
-          <defs>
-            <pattern id="grid" width="10" height="10"
-                     patternUnits="userSpaceOnUse">
-              <path d="M 10 0 L 0 0 0 10"
-                    fill="none" stroke="gray" stroke-width="0.5"/>
-            </pattern>
-            <symbol id="robot_diagram">
-              <path d="M 0 0 L 10 10 L 20 0 L 0 0"
-            </symbol>
-          </defs>
-          <rect id="world_grid" fill="url(#grid)"/>
-          <path id="robot_trail" fill="none" stroke="red" />
-          <use id="robot"
-               xlink:href="#robot_diagram"
-               x="0" y="0"
-               transform="translate(-10 -5)" />
-        </svg>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script type="text/javascript">

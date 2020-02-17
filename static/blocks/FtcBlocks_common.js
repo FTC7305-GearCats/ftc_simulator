@@ -237,11 +237,28 @@ function downloadButtonClicked() {
   });
 }
 
-function initializeSplit() {
-  split = window.Split([blocksAndBannerArea, javaArea], {
+function initializeSplit(show_java, show_sim) {
+  var sizes;
+  var areas = [blocksAndBannerArea];
+  var minSize = [200];
+
+  if (show_java && show_sim) {
+    sizes = [50, 25, 25];
+  } else {
+    sizes = [75, 25];
+  }
+  if (show_java) {
+    minSize.push(100);
+    areas.push(javaArea);
+  }
+  if (show_sim) {
+    minSize.push(100);
+    areas.push(simulatorArea);
+  }
+  split = window.Split(areas, {
     direction: 'horizontal',
-    sizes: [75, 25],
-    minSize: [200, 100],
+    sizes: sizes,
+    minSize: minSize,
     gutterSize: 4,
     snapOffset: 0,
     onDrag: resizeBlocklyArea,
@@ -283,6 +300,7 @@ function initializeBlockly() {
   banner = document.getElementById('banner');
   bannerText = document.getElementById('bannerText');
   bannerButton = document.getElementById('bannerBtn');
+  simulatorArea = document.getElementById('simulatorArea');
   workspace = Blockly.inject(blocklyDiv, {
     media: 'blockly/media/',
     zoom: {
@@ -872,13 +890,25 @@ function projectGroupChanged() {
 }
 
 function showJavaChanged() {
-  if (document.getElementById('show_java').checked) {
+  var show_java = document.getElementById('show_java').checked;
+  var show_sim = document.getElementById('show_simulator').checked;
+  if (split) {
+    split.destroy();
+    split = null;
+  }
+  if (show_java || show_sim) {
+    initializeSplit(show_java, show_sim);
+  }
+  if (show_java) {
     javaArea.style.display = 'flex';
-    initializeSplit();
   } else {
-    if (split) split.destroy();
     blocksAndBannerArea.style.width="100%";
     javaArea.style.display = 'none';
+  }
+  if (show_sim) {
+    simulatorArea.style.display = 'flex';
+  } else {
+    simulatorArea.style.display = 'none';
   }
   resizeBlocklyArea();
   showJava();
