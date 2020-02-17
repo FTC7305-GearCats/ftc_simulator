@@ -34,6 +34,7 @@ function Robot() {
   // Lengths are in cm.
 
   // Radius: assume wheel is 100mm in diameter.
+  // https://www.gobilda.com/3606-series-mecanum-wheel-set-bearing-supported-rollers-100mm-diameter/
   this.r = 5.0;
   // Center point to middle of wheels in z dimension (width).
   this.l1 = 6.0;
@@ -41,10 +42,15 @@ function Robot() {
   this.l2 = 16.8;
 
   // Maximum wheel linear speed (cm/s) (based on 3.73'/sec).
-  this.max_motor_linear_speed = 113.69;
+  // this.max_motor_linear_speed = 113.69;
 
   // Maximum wheel angular speed (rad/s) (based on 435 RPM * 2).
-  this.max_motor_angular_speed = 91.11;
+  // https://www.gobilda.com/strafer-chassis-kit/
+  //this.max_motor_angular_speed = 91.11;
+
+  // Maximum wheel angular speed (rad/s) based on 100 RPM.
+  // https://www.pitsco.com/TETRIX-MAX-TorqueNADO-Motor-with-Encoder
+  this.max_motor_angular_speed = 10.47;
 
   // Position/orientation in the svg world.
   this.x = 0;
