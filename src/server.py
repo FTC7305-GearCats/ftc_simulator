@@ -7,6 +7,7 @@ import os
 import html
 import datetime
 import pathlib
+import shutil
 
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
 sqlite3.register_converter("JSON", lambda v: json.loads(v))
@@ -121,6 +122,32 @@ def rename():
     new_fn = safe_path("../data/programs", new_name + ".blk")
     old_fn.rename(new_fn)
     conn.commit()
+
+@bottle.route("/copy", method="POST")
+def copy():
+    name = bottle.request.forms.get("name")
+    new_name = bottle.request.forms.get("new_name")
+
+    now_ms = int(round(datetime.datetime.utcnow().timestamp() * 1000))
+    prog = {
+        "dateModifiedMillis": now_ms,
+        "enabled": True,
+        "escapedName": html.escape(new_name),
+        "name": new_name,
+    }
+    c = conn.cursor()
+    c.execute("""INSERT INTO blocks
+                 (dateModifiedMillis, enabled, escapedName, name) VALUES
+                 (:dateModifiedMillis, :enabled, :escapedName, :name)""",
+              prog)
+    conn.commit()
+
+    old_fn = safe_path("../data/programs", name + ".blk")
+    new_fn = safe_path("../data/programs", new_name + ".blk")
+    shutil.copy(old_fn, new_fn)
+    conn.commit()
+    # XXX Not sure is this is the right return...
+    return bottle.static_file(new_name + ".blk", root="../data/programs")
 
 @bottle.route("/")
 def static_index():
