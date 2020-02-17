@@ -246,6 +246,12 @@ var initFunc = function(interpreter, scope) {
   createDcMotor(interpreter, scope, "FRmotorAsDcMotor");
   createDcMotor(interpreter, scope, "BLmotorAsDcMotor");
   createDcMotor(interpreter, scope, "BRmotorAsDcMotor");
+
+  var highlightBlock = function(id) {
+    workspace.highlightBlock(id);
+  };
+  interpreter.setProperty(scope, 'highlightBlock',
+      interpreter.createNativeFunction(highlightBlock));
 };
 
 function update_trail(dom) {
@@ -259,6 +265,8 @@ function runSimulator() {
   var trail_dom = document.getElementById('robot_trail');
 
   Blockly.JavaScript.addReservedWords('code');
+  Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
+  Blockly.JavaScript.addReservedWords('highlightBlock');
   var code = Blockly.JavaScript.workspaceToCode(workspace);
   var myInterpreter = new Interpreter(code, initFunc);
   myInterpreter.appendCode('runOpMode();');
@@ -283,6 +291,8 @@ function runSimulator() {
     if (!myInterpreter.step()) {
       // It's done running, abort the next frame.
       window.cancelAnimationFrame(stop);
+      // Stop highlighting blocks.
+      workspace.highlightBlock(null);
     } else {
       // Update the robot.
       realRobot.update(delta);
