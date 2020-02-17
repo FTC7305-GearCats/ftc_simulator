@@ -9,23 +9,6 @@ var linearOpMode = {
   },
 };
 
-function DcMotor(name) {
-  this.name = name;
-
-  this.setDirection = function(dir) {
-    this.direction = dir;
-  };
-
-  this.setPower = function(power) {
-    this.power = power;
-  };
-
-  this.setDualPower = function(self_power, other, other_power) {
-    this.setPower(self_power);
-    other.setPower(other_power);
-  };
-};
-
 var telemetry = {
   update: function() {}
 };
@@ -70,9 +53,17 @@ function Robot() {
   this.omega0 = 0;
 
   // Angular velocities of the wheels.
-  // Positive values correspond to moving the robot forward.
-  // Values are FL, FR, BL, BR.
+  // Positive values correspond to positive motor rotation:
+  //  right => moves the robot forward.
+  //  left => moves the robot backard.
+  // Order is FL, FR, BL, BR.
   this.omega = [0.0, 0.0, 0.0, 0.0];
+
+  // Directions of each motor, either -1 or 1.
+  // Relative to motor itself.
+  // Right motors, positive direction moves the robot forward.
+  // Left motors, positive direction moves the robot backward.
+  this.direction = [1, 1, 1, 1];
 
   // Current tick count for each motor.
   this.encoder_ticks = [0.0, 0.0, 0.0, 0.0];
@@ -87,11 +78,14 @@ function Robot() {
   this.motorIsBusy = [false, false, false, false];
 
   // Multiplication vectors.
-  this.vx_mult = [1.0, 1.0, 1.0, 1.0];
-  this.vz_mult = [1.0, -1.0, -1.0, 1.0];
-  this.omega0_mult= [-1/(this.l1 + this.l2),
+  // Positive values move the robot forward.
+  this.vx_mult = [-1.0, 1.0, -1.0, 1.0];
+  // Positive values move the robot to the right (XXX Is this correct?).
+  this.vz_mult = [-1.0, -1.0, 1.0, 1.0];
+  // XXX Check signs
+  this.omega0_mult= [1/(this.l1 + this.l2),
                      1/(this.l1 + this.l2),
-                     -1/(this.l1 + this.l2),
+                     1/(this.l1 + this.l2),
                      1/(this.l1 + this.l2)];
 
   this.motor_names =["FLmotorAsDcMotor",
@@ -102,6 +96,18 @@ function Robot() {
   // Points on the trail that the robot has traversed.
   this.trail_add_point = false;
   this.trail = [];
+
+  this.setDirection = function(motor, dir) {
+    var index = this.motor_names.indexOf(motor);
+    if (index < 0) {
+      return;
+    }
+    if (dir == "FORWARD") {
+      this.direction[index] = 1;
+    } else if (dir == "REVERSE") {
+      this.direction[index] = -1;
+    }
+  };
 
   this.setMode = function(motor, mode) {
     var index = this.motor_names.indexOf(motor);
@@ -152,14 +158,14 @@ function Robot() {
     this.omega0 = 0;
 
     for (var i = 0; i < 4; i++) {
-      this.vx += this.vx_mult[i] * this.omega[i];
-      this.vz += this.vz_mult[i] * this.omega[i];
-      this.omega0 += this.omega0_mult[i] * this.omega[i];
+      this.vx += this.vx_mult[i] * this.omega[i] * this.direction[i];
+      this.vz += this.vz_mult[i] * this.omega[i] * this.direction[i];
+      this.omega0 += this.omega0_mult[i] * this.omega[i] * this.direction[i];
     }
 
     this.vx *= this.r / 4.0;
     this.vz *= this.r / 4.0;
-    this.omega0 *= this.r / 40.0;
+    this.omega0 *= this.r / 4.0;
   };
 
   this.calculate_position = function(delta_sec) {
@@ -184,15 +190,14 @@ function Robot() {
         // Nothing to do, go to the next motor.
         continue;
       }
-      var revs = this.omega[i] * delta_sec / ( 2 * Math.PI);
+      var revs = this.omega[i] * this.direction[i] * delta_sec / ( 2 * Math.PI);
       this.encoder_ticks[i] += revs * this.quad_encoder_ticks;
       if (this.mode[i] == 'RUN_TO_POSITION') {
-        if ((this.target_position[i] >= 0 &&
-             this.encoder_ticks[i] > this.target_position[i]) ||
-            (this.target_position[i] < 0 &&
-             this.encoder_ticks[i] < this.target_position[i])) {
-
-        // Mark the motor as not busy, and stop it.
+        // Don't worry about sign on the encoders.
+        console.log(i, this.target_position[i], this.encoder_ticks[i]);
+        if (Math.abs(this.target_position[i]) >=
+            Math.abs(this.encoder_ticks[i])) {
+          // Mark the motor as not busy, and stop it.
           this.motorIsBusy[i] = false;
           this.omega[i] = 0.0;
         }
@@ -333,7 +338,7 @@ function SimController() {
         // It's done running, abort the next frame.
         window.cancelAnimationFrame(stop);
         // Stop highlighting blocks.
-        // XXX workspace.highlightBlock(null);
+        workspace.highlightBlock(null);
         // Break out of the loop.
         break;
       }
@@ -356,7 +361,7 @@ var createDcMotor = function(interpreter, scope, name) {
   interpreter.setProperty(motor, 'name', name);
 
   var setDirection = function(dir) {
-    console.log("setDirection");
+    realRobot.setDirection(name, dir);
   };
   interpreter.setProperty(motor, 'setDirection',
       interpreter.createNativeFunction(setDirection));
