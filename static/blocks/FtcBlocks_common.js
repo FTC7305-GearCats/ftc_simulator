@@ -252,7 +252,7 @@ function initializeSplit(show_java, show_sim) {
     areas.push(javaArea);
   }
   if (show_sim) {
-    minSize.push(100);
+    minSize.push(500);
     areas.push(simulatorArea);
   }
   split = window.Split(areas, {
