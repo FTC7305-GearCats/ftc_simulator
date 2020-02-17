@@ -52,6 +52,9 @@ function Robot() {
   // https://www.pitsco.com/TETRIX-MAX-TorqueNADO-Motor-with-Encoder
   this.max_motor_angular_speed = 10.47;
 
+  // Number of quadurature encoder ticks per revolution.
+  this.quad_encoder_ticks = 1440;
+
   // Position/orientation in the svg world.
   this.x = 0;
   this.y = 0;
@@ -71,6 +74,18 @@ function Robot() {
   // Values are FL, FR, BL, BR.
   this.omega = [0.0, 0.0, 0.0, 0.0];
 
+  // Current tick count for each motor.
+  this.encoder_ticks = [0.0, 0.0, 0.0, 0.0];
+  // Target position for each motor.
+  this.target_position = [null, null, null, null];
+  // Mode of each motor.
+  this.mode = ["RUN_WITHOUT_ENCODER",
+               "RUN_WITHOUT_ENCODER",
+               "RUN_WITHOUT_ENCODER",
+               "RUN_WITHOUT_ENCODER"];
+  // Busy flag for each motor.
+  this.motorIsBusy = [false, false, false, false];
+
   // Multiplication vectors.
   this.vx_mult = [1.0, 1.0, 1.0, 1.0];
   this.vz_mult = [1.0, -1.0, -1.0, 1.0];
@@ -88,6 +103,29 @@ function Robot() {
   this.trail_add_point = false;
   this.trail = [];
 
+  this.setMode = function(motor, mode) {
+    var index = this.motor_names.indexOf(motor);
+    if (index < 0) {
+      return;
+    }
+
+    if (mode == "STOP_AND_RESET_ENCODER") {
+      this.omega[index] = 0;
+      this.encoder_ticks[index] = 0;
+    } else if (mode == "RUN_TO_POSITION") {
+      this.motorIsBusy[index] = true;
+    }
+    this.mode[index] = mode;
+  };
+
+  this.setTargetPosition = function(motor, position) {
+    var index = this.motor_names.indexOf(motor);
+    if (index < 0) {
+      return;
+    }
+    this.target_position[index] = position;
+  };
+
   this.setPower = function(motor, power) {
     console.log(motor, power);
     var index = this.motor_names.indexOf(motor);
@@ -98,6 +136,14 @@ function Robot() {
 
     // Potentially changing or direction, add a new point.
     this.trail_add_point = true;
+  };
+
+  this.isBusy = function(motor) {
+    var index = this.motor_names.indexOf(motor);
+    if (index < 0) {
+      return false;
+    }
+    return this.motorIsBusy[index];
   };
 
   this.calculate_speed = function() {
@@ -131,6 +177,29 @@ function Robot() {
     this.angle += dO;
   };
 
+  this.update_encoders = function(delta_sec) {
+    // Check for encoder state.
+    for (var i = 0; i < 4; i++) {
+      if (this.mode[i] == 'RUN_WITHOUT_ENCODER') {
+        // Nothing to do, go to the next motor.
+        continue;
+      }
+      var revs = this.omega[i] * delta_sec / ( 2 * Math.PI);
+      this.encoder_ticks[i] += revs * this.quad_encoder_ticks;
+      if (this.mode[i] == 'RUN_TO_POSITION') {
+        if ((this.target_position[i] >= 0 &&
+             this.encoder_ticks[i] > this.target_position[i]) ||
+            (this.target_position[i] < 0 &&
+             this.encoder_ticks[i] < this.target_position[i])) {
+
+        // Mark the motor as not busy, and stop it.
+          this.motorIsBusy[i] = false;
+          this.omega[i] = 0.0;
+        }
+      }
+    }
+  };
+
   this.update_trail = function() {
     if (this.trail_add_point) {
       this.trail_add_point = false;
@@ -145,6 +214,7 @@ function Robot() {
 
     this.calculate_speed();
     this.calculate_position(delta_sec);
+    this.update_encoders(delta_sec);
     this.update_trail();
   };
 }
@@ -205,6 +275,7 @@ function Camera() {
 }
 
 function SimController() {
+  this.time_secs = 0.0;
   this.last_timestamp = null;
 
   this.sleepCallback = null;
@@ -252,6 +323,7 @@ function SimController() {
     // Don't use a delta larger than 16ms (60 fps).
     var delta = Math.min(timestamp - this.last_timestamp, 16);
     this.last_timestamp = timestamp;
+    this.time_secs += delta / 1000;
 
     this.handleAsync(delta);
 
@@ -261,7 +333,7 @@ function SimController() {
         // It's done running, abort the next frame.
         window.cancelAnimationFrame(stop);
         // Stop highlighting blocks.
-        workspace.highlightBlock(null);
+        // XXX workspace.highlightBlock(null);
         // Break out of the loop.
         break;
       }
@@ -301,6 +373,38 @@ var createDcMotor = function(interpreter, scope, name) {
   };
   interpreter.setProperty(motor, 'setDualPower',
       interpreter.createNativeFunction(setDualPower));
+
+  var setMode = function(mode) {
+    realRobot.setMode(name, mode);
+  };
+  interpreter.setProperty(motor, 'setMode',
+      interpreter.createNativeFunction(setMode));
+
+  var setDualMode = function(self_mode, other, other_mode) {
+    realRobot.setMode(name, self_mode);
+    realRobot.setMode(other.properties.name, other_mode);
+  };
+  interpreter.setProperty(motor, 'setDualMode',
+      interpreter.createNativeFunction(setDualMode));
+
+  var setTargetPosition = function(position) {
+    realRobot.setTargetPosition(name, position);
+  };
+  interpreter.setProperty(motor, 'setTargetPosition',
+      interpreter.createNativeFunction(setTargetPosition));
+
+  var setDualTargetPosition = function(self_position, other, other_position) {
+    realRobot.setTargetPosition(name, self_position);
+    realRobot.setTargetPosition(other.properties.name, other_position);
+  };
+  interpreter.setProperty(motor, 'setDualTargetPosition',
+      interpreter.createNativeFunction(setDualTargetPosition));
+
+  var isBusy = function() {
+    return realRobot.isBusy(name);
+  };
+  interpreter.setProperty(motor, 'isBusy',
+      interpreter.createNativeFunction(isBusy));
 };
 
 var initFunc = function(interpreter, scope) {
