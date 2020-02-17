@@ -2,6 +2,9 @@ var last = null;
 var sleepCallback = null;
 var sleepRemaining = 0;
 
+var realRobot;
+var camera;
+
 var linearOpMode = {
   waitForStart: function() {},
   opModeIsActive: function() {
@@ -149,8 +152,6 @@ function Robot() {
   };
 }
 
-var realRobot = new Robot();
-
 function Camera() {
   this.world_dom = document.getElementById('world');
   this.grid_dom = document.getElementById('world_grid');
@@ -205,8 +206,6 @@ function Camera() {
     this.grid_dom.setAttribute('height', height);
   };
 }
-
-var camera = new Camera();
 
 var createDcMotor = function(interpreter, scope, name) {
   var motor = interpreter.nativeToPseudo({});
@@ -267,6 +266,9 @@ function update_trail(dom) {
 }
 
 function runSimulator() {
+  realRobot = new Robot();
+  camera = new Camera();
+
   var robot_dom = document.getElementById('robot');
   var trail_dom = document.getElementById('robot_trail');
 
