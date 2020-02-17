@@ -1,9 +1,6 @@
-var last = null;
-var sleepCallback = null;
-var sleepRemaining = 0;
-
 var realRobot;
 var camera;
+var simController;
 
 var linearOpMode = {
   waitForStart: function() {},
@@ -207,6 +204,79 @@ function Camera() {
   };
 }
 
+function SimController() {
+  this.last_timestamp = null;
+
+  this.sleepCallback = null;
+  this.sleepRemaining = 0;
+
+  this.robot_dom = document.getElementById('robot');
+  this.trail_dom = document.getElementById('robot_trail');
+
+  this.myInterpreter = null;
+
+  this.init = function() {
+    // Generate the code.
+    Blockly.JavaScript.addReservedWords('code');
+    Blockly.JavaScript.addReservedWords('highlightBlock');
+    Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
+    var code = Blockly.JavaScript.workspaceToCode(workspace);
+    this.myInterpreter = new Interpreter(code, initFunc);
+    this.myInterpreter.appendCode('runOpMode();');
+  };
+
+  this.sleep = function(ms, callback) {
+    this.sleepCallback = callback;
+    this.sleepRemaining = ms;
+  };
+
+  this.handleAsync = function(delta) {
+    // Handle sleep.
+    if (this.sleepCallback) {
+      this.sleepRemaining -= delta;
+      if (this.sleepRemaining <= 0) {
+        console.log("done sleeping");
+        this.sleepCallback();
+        this.sleepCallback = null;
+        this.sleepRemaining = 0;
+      }
+    }
+  };
+
+  this.nextStep = function(timestamp) {
+    var stop = window.requestAnimationFrame(this.nextStep.bind(this));
+
+    if (!this.last_timestamp) {
+      this.last_timestamp = timestamp;
+    }
+    // Don't use a delta larger than 16ms (60 fps).
+    var delta = Math.min(timestamp - this.last_timestamp, 16);
+    this.last_timestamp = timestamp;
+
+    this.handleAsync(delta);
+
+    // Run 10 instructions.  This should prevent getting half the motors set.
+    for (var i = 0; i < 10; i++) {
+      if (!this.myInterpreter.step()) {
+        // It's done running, abort the next frame.
+        window.cancelAnimationFrame(stop);
+        // Stop highlighting blocks.
+        workspace.highlightBlock(null);
+        // Break out of the loop.
+        break;
+      }
+    }
+
+    // Update the robot.
+    realRobot.update(delta);
+    this.robot_dom.setAttribute('x', realRobot.x);
+    this.robot_dom.setAttribute('y', realRobot.y);
+
+    update_trail(this.trail_dom);
+    camera.update(realRobot.x, realRobot.y);
+  };
+}
+
 var createDcMotor = function(interpreter, scope, name) {
   var motor = interpreter.nativeToPseudo({});
   interpreter.setProperty(scope, name, motor);
@@ -238,8 +308,7 @@ var initFunc = function(interpreter, scope) {
   interpreter.setProperty(scope, 'linearOpMode', lom);
   var sleep = function(ms, callback) {
     console.log("sleep", ms);
-    sleepCallback = callback;
-    sleepRemaining = ms;
+    simController.sleep(ms, callback);
   };
   interpreter.setProperty(lom, 'sleep',
       interpreter.createAsyncFunction(sleep));
@@ -268,55 +337,11 @@ function update_trail(dom) {
 function runSimulator() {
   realRobot = new Robot();
   camera = new Camera();
+  simController = new SimController;
 
-  var robot_dom = document.getElementById('robot');
-  var trail_dom = document.getElementById('robot_trail');
+  simController.init();
 
-  Blockly.JavaScript.addReservedWords('code');
-  Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
-  Blockly.JavaScript.addReservedWords('highlightBlock');
-  var code = Blockly.JavaScript.workspaceToCode(workspace);
-  var myInterpreter = new Interpreter(code, initFunc);
-  myInterpreter.appendCode('runOpMode();');
-
-  function nextStep(timestamp) {
-    var stop = window.requestAnimationFrame(nextStep);
-
-    if (!last) {
-      last = timestamp;
-    }
-    // Don't use a delta larger than 16ms (60 fps).
-    var delta = Math.min(timestamp - last, 16);
-    last = timestamp;
-    if (sleepCallback) {
-      sleepRemaining -= delta;
-      if (sleepRemaining <= 0) {
-        console.log("done sleeping");
-        sleepCallback();
-        sleepCallback = null;
-        sleepRemaining = 0;
-      }
-    }
-    // Run 10 instructions.  This should prevent getting half the motors set.
-    for (var i = 0; i < 10; i++) {
-      if (!myInterpreter.step()) {
-        // It's done running, abort the next frame.
-        window.cancelAnimationFrame(stop);
-        // Stop highlighting blocks.
-        workspace.highlightBlock(null);
-        // Break out of the loop.
-        break;
-      }
-    }
-
-    // Update the robot.
-    realRobot.update(delta);
-    robot_dom.setAttribute('x', realRobot.x);
-    robot_dom.setAttribute('y', realRobot.y);
-
-    update_trail(trail_dom);
-    camera.update(realRobot.x, realRobot.y);
-  }
-  window.requestAnimationFrame(nextStep);
+  // Start the simulation.
+  window.requestAnimationFrame(simController.nextStep.bind(simController));
 }
 
