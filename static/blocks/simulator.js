@@ -13,6 +13,51 @@ var telemetry = {
   update: function() {}
 };
 
+function Gamepad() {
+  this.gamepads = {};
+
+  /* Probably only useful on firefox.
+  window.addEventListener("gamepadconnected", function(e) {
+    console.log("Gamepad connected");
+    gamepadController.gamepad = e.gamepad;
+  });
+
+  window.addEventListener("gamepaddisconnected", function(e) {
+    console.log("Gamepad disconnected");
+    gamepadController.gamepad = null;
+  });
+  */
+
+  this.poll = function() {
+    var all_gamepads = navigator.getGamepads();
+    for (var i = 0; i < all_gamepads.length; i++) {
+      if (all_gamepads[i]) {
+        // XXX Handle multiple controllers.
+        this.gamepads["gamepad1"] = all_gamepads[i];
+        break;
+      }
+    }
+  };
+
+  this.getLeftStickX = function(name) {
+    var gamepad = this.gamepads[name];
+    if (!gamepad) {
+      return 0;
+    }
+    return gamepad.axes[0];
+  };
+
+  this.getLeftStickY = function(name) {
+    var gamepad = this.gamepads[name];
+    if (!gamepad) {
+      return 0;
+    }
+    return gamepad.axes[1];
+  };
+};
+
+var gamepadController = new Gamepad();
+
 function Robot() {
   // Lengths are in cm.
 
@@ -361,6 +406,9 @@ function SimController() {
 
     this.handleAsync(delta);
 
+    // Chrome requires us to poll for gamepads every loop.
+    gamepadController.poll();
+
     // Run 10 instructions.  This should prevent getting half the motors set.
     for (var i = 0; i < 10; i++) {
       if (!this.myInterpreter.step()) {
@@ -395,6 +443,25 @@ function SimController() {
     workspace.highlightBlock(null);
   };
 }
+
+var createGamepad = function(interpreter, scope, name) {
+  var gamepad = interpreter.nativeToPseudo({});
+  interpreter.setProperty(scope, name, gamepad);
+
+  interpreter.setProperty(gamepad, 'name', name);
+
+  var getLeftStickX = function() {
+    return gamepadController.getLeftStickX(name);
+  };
+  interpreter.setProperty(gamepad, 'getLeftStickX',
+      interpreter.createNativeFunction(getLeftStickX));
+
+  var getLeftStickY = function() {
+    return gamepadController.getLeftStickY(name);
+  };
+  interpreter.setProperty(gamepad, 'getLeftStickY',
+      interpreter.createNativeFunction(getLeftStickY));
+};
 
 var createDcMotor = function(interpreter, scope, name) {
   var motor = interpreter.nativeToPseudo({});
@@ -471,6 +538,8 @@ var initFunc = function(interpreter, scope) {
   createDcMotor(interpreter, scope, "FRmotorAsDcMotor");
   createDcMotor(interpreter, scope, "BLmotorAsDcMotor");
   createDcMotor(interpreter, scope, "BRmotorAsDcMotor");
+
+  createGamepad(interpreter, scope, "gamepad1");
 
   var highlightBlock = function(id) {
     workspace.highlightBlock(id);
