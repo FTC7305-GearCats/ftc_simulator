@@ -9,9 +9,13 @@ import datetime
 import pathlib
 import shutil
 
+data_dir = pathlib.Path.home() / "work" / "ftc_simulator" / "data"
+program_dir = data_dir / "programs"
+samples_dir = data_dir / "samples"
+
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
 sqlite3.register_converter("JSON", lambda v: json.loads(v))
-conn = sqlite3.connect("../data/blocks.db",
+conn = sqlite3.connect(data_dir / "blocks.db",
                        detect_types=sqlite3.PARSE_DECLTYPES)
 conn.row_factory = sqlite3.Row
 
@@ -50,7 +54,7 @@ def get_blocks_java_class_name():
 @bottle.route("/fetch_blk", method="POST")
 def fetch_blk():
     name = bottle.request.forms.get("name")
-    return bottle.static_file(name + ".blk", root="../data/programs")
+    return bottle.static_file(name + ".blk", root=program_dir)
 
 @bottle.route("/new", method="POST")
 def new():
@@ -72,7 +76,7 @@ def new():
                  (:dateModifiedMillis, :enabled, :escapedName, :name)""",
               prog)
     conn.commit()
-    return bottle.static_file(sample + ".blk", root="../data/samples")
+    return bottle.static_file(sample + ".blk", root=samples_dir)
 
 @bottle.route("/save", method="POST")
 def save():
@@ -96,7 +100,7 @@ def save():
               prog)
     conn.commit()
 
-    fn = safe_path("../data/programs", name + ".blk")
+    fn = safe_path(program_dir, name + ".blk")
     with open(fn, "w") as f:
         f.write(blk)
 
@@ -106,7 +110,7 @@ def delete():
     c = conn.cursor()
     for name in names:
         c.execute("DELETE FROM blocks WHERE name = ?", [name])
-        fn = safe_path("../data/programs", name + ".blk")
+        fn = safe_path(program_dir, name + ".blk")
         fn.unlink()
         conn.commit()
 
@@ -118,8 +122,8 @@ def rename():
     c = conn.cursor()
     c.execute("UPDATE blocks SET name = ?, escapedName = ? WHERE name = ?",
               [new_name, html.escape(new_name), name])
-    old_fn = safe_path("../data/programs", name + ".blk")
-    new_fn = safe_path("../data/programs", new_name + ".blk")
+    old_fn = safe_path(program_dir, name + ".blk")
+    new_fn = safe_path(program_dir, new_name + ".blk")
     old_fn.rename(new_fn)
     conn.commit()
 
@@ -142,12 +146,12 @@ def copy():
               prog)
     conn.commit()
 
-    old_fn = safe_path("../data/programs", name + ".blk")
-    new_fn = safe_path("../data/programs", new_name + ".blk")
+    old_fn = safe_path(program_dir, name + ".blk")
+    new_fn = safe_path(program_dir, new_name + ".blk")
     shutil.copy(old_fn, new_fn)
     conn.commit()
     # XXX Not sure is this is the right return...
-    return bottle.static_file(new_name + ".blk", root="../data/programs")
+    return bottle.static_file(new_name + ".blk", root=program_dir)
 
 @bottle.route("/")
 def static_index():
@@ -158,4 +162,5 @@ def static_index():
 def static(path):
     return bottle.static_file(path, root="../static")
 
-bottle.run(host="localhost", port=8080)
+if __name__ == "__main__":
+    bottle.run(host="localhost", port=8080)
