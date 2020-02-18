@@ -455,13 +455,13 @@ function Camera() {
       max_y = Math.ceil(max_y / 10) * 10;
 
       // Add some padding.
-      width = max_x - min_x + 20;
-      height = max_y - min_y + 20;
+      width = max_x - min_x + 100;
+      height = max_y - min_y + 100;
 
-      this.last_min_x = min_x - 10;
-      this.last_max_x = max_x + 10;
-      this.last_min_y = min_y - 10;
-      this.last_max_y = max_y + 10;
+      this.last_min_x = min_x - 50;
+      this.last_max_x = max_x + 50;
+      this.last_min_y = min_y - 50;
+      this.last_max_y = max_y + 50;
     } else {
       // Reuse the existing bounds.
       min_x = this.last_min_x;
