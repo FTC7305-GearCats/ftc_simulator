@@ -74,6 +74,22 @@ function Gamepad() {
     }
     return gamepad.axes[3];
   };
+
+  this.getLeftTrigger = function(name) {
+    var gamepad = this.gamepads[name];
+    if (!gamepad) {
+      return 0;
+    }
+    return gamepad.buttons[6].value;
+  };
+
+  this.getRightTrigger = function(name) {
+    var gamepad = this.gamepads[name];
+    if (!gamepad) {
+      return 0;
+    }
+    return gamepad.buttons[7].value;
+  };
 };
 
 var gamepadController = new Gamepad();
@@ -493,6 +509,18 @@ var createGamepad = function(interpreter, scope, name) {
   };
   interpreter.setProperty(gamepad, 'getRightStickY',
       interpreter.createNativeFunction(getRightStickY));
+
+  var getLeftTrigger = function() {
+    return gamepadController.getLeftTrigger(name);
+  };
+  interpreter.setProperty(gamepad, 'getLeftTrigger',
+      interpreter.createNativeFunction(getLeftTrigger));
+
+  var getRightTrigger = function() {
+    return gamepadController.getRightTrigger(name);
+  };
+  interpreter.setProperty(gamepad, 'getRightTrigger',
+      interpreter.createNativeFunction(getRightTrigger));
 };
 
 var createDcMotor = function(interpreter, scope, name) {
