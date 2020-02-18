@@ -349,7 +349,7 @@ function SimController() {
   };
 
   this.nextStep = function(timestamp) {
-    var stop = window.requestAnimationFrame(this.nextStep.bind(this));
+    this.anim_handle = window.requestAnimationFrame(this.nextStep.bind(this));
 
     if (!this.last_timestamp) {
       this.last_timestamp = timestamp;
@@ -365,7 +365,8 @@ function SimController() {
     for (var i = 0; i < 10; i++) {
       if (!this.myInterpreter.step()) {
         // It's done running, abort the next frame.
-        window.cancelAnimationFrame(stop);
+        window.cancelAnimationFrame(this.anim_handle);
+        this.anim_handle = null;
         // Stop highlighting blocks.
         workspace.highlightBlock(null);
         // Break out of the loop.
@@ -383,6 +384,13 @@ function SimController() {
 
     update_trail(this.trail_dom);
     camera.update(realRobot.x, realRobot.y);
+  };
+
+  this.stop = function() {
+    if (this.anim_handle) {
+      window.cancelAnimationFrame(this.anim_handle);
+    }
+    this.anim_handle = null;
   };
 }
 
@@ -476,6 +484,9 @@ function update_trail(dom) {
 }
 
 function runSimulator() {
+  // Make sure we stop first, just in case.
+  stopSimulator();
+
   realRobot = new Robot();
   camera = new Camera();
   simController = new SimController;
@@ -486,3 +497,9 @@ function runSimulator() {
   window.requestAnimationFrame(simController.nextStep.bind(simController));
 }
 
+function stopSimulator() {
+  if (simController) {
+    simController.stop();
+  }
+  simController = null;
+}
