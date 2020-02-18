@@ -216,7 +216,7 @@ function Robot() {
   this.x = 0;
   this.y = 0;
   // In radians, positve is clockwise.
-  this.angle = 0;
+  this.angle = Math.PI;
 
   // Velocities relative to the robot.
   // x positive is forward.
