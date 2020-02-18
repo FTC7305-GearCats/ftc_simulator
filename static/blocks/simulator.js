@@ -236,46 +236,68 @@ function Camera() {
   this.min_y = 0;
   this.max_y = 0;
 
+  // Last set of points for the camera.
+  this.last_min_x = Infinity;
+  this.last_max_x = -Infinity;
+  this.last_min_y = Infinity;
+  this.last_max_y = -Infinity;
+
   this.update = function(x, y) {
-    var delta, width, height, first, second;
+    var delta, width, height;
+    var min_x, max_x, min_y, max_y;
 
     this.min_x = Math.min(this.min_x, x);
     this.max_x = Math.max(this.max_x, x);
     this.min_y = Math.min(this.min_y, y);
     this.max_y = Math.max(this.max_y, y);
 
-    width = this.max_x - this.min_x;
-    height = this.max_y - this.min_y;
+    if (this.min_x < this.last_min_x ||
+        this.max_x > this.last_max_x ||
+        this.min_y < this.last_min_y ||
+        this.max_y > this.last_max_y) {
+      // We've exceed the previous bounds, compute new bounds.
+      var center_x = (this.min_x + this.max_x) / 2;
+      var center_y = (this.min_y + this.max_y) / 2;
 
-    // Preserve the aspect ratio.
-    if (width > height) {
-      delta = width - height;
-      first = Math.floor(delta / 20) * 10;
-      second = delta - first;
-      this.min_y -= first;
-      this.max_y += second;
-    } else if (height > width) {
-      delta = height - width;
-      first = Math.floor(delta / 20) * 10;
-      second = delta - first;
-      this.min_x -= first;
-      this.max_x += second;
+      width = this.max_x - this.min_x;
+      height = this.max_y - this.min_y;
+      var half_length = Math.max(width, height) / 2;
+
+      // Switch to local variables rather than updating the saved values.
+      min_x = center_x - half_length;
+      max_x = center_x + half_length;
+      min_y = center_y - half_length;
+      max_y = center_y + half_length;
+
+      // Round to multiples of 10.
+      min_x = Math.floor(min_x / 10) * 10;
+      max_x = Math.ceil(max_x / 10) * 10;
+      min_y = Math.floor(min_y / 10) * 10;
+      max_y = Math.ceil(max_y / 10) * 10;
+
+      // Add some padding.
+      width = max_x - min_x + 20;
+      height = max_y - min_y + 20;
+
+      this.last_min_x = min_x - 10;
+      this.last_max_x = max_x + 10;
+      this.last_min_y = min_y - 10;
+      this.last_max_y = max_y + 10;
+    } else {
+      // Reuse the existing bounds.
+      min_x = this.last_min_x;
+      max_x = this.last_max_x;
+      min_y = this.last_min_y;
+      max_y = this.last_max_y;
+
+      width = max_x - min_x;
+      height = max_y - min_y;
     }
 
-    // Round to multiples of 10.
-    this.min_x = Math.floor(this.min_x / 10) * 10;
-    this.max_x = Math.ceil(this.max_x / 10) * 10;
-    this.min_y = Math.floor(this.min_y / 10) * 10;
-    this.max_y = Math.ceil(this.max_y / 10) * 10;
-
-    // Add some padding.
-    width = this.max_x - this.min_x + 20;
-    height = this.max_y - this.min_y + 20;
-
     this.world_dom.setAttribute(
-      'viewBox', `${this.min_x - 10} ${this.min_y - 10} ${width} ${height}`);
-    this.grid_dom.setAttribute('x', this.min_x - 10);
-    this.grid_dom.setAttribute('y', this.min_y - 10);
+      'viewBox', `${min_x} ${min_y} ${width} ${height}`);
+    this.grid_dom.setAttribute('x', min_x);
+    this.grid_dom.setAttribute('y', min_y);
     this.grid_dom.setAttribute('width', width);
     this.grid_dom.setAttribute('height', height);
   };
