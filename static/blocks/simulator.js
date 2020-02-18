@@ -29,6 +29,7 @@ function Gamepad() {
   */
 
   this.poll = function() {
+    // XXX Handle disconnecting.
     var all_gamepads = navigator.getGamepads();
     for (var i = 0; i < all_gamepads.length; i++) {
       if (all_gamepads[i]) {
@@ -38,6 +39,9 @@ function Gamepad() {
       }
     }
   };
+
+  // Mapping of buttons/axes.
+  // https://w3c.github.io/gamepad/#remapping
 
   this.getLeftStickX = function(name) {
     var gamepad = this.gamepads[name];
@@ -53,6 +57,22 @@ function Gamepad() {
       return 0;
     }
     return gamepad.axes[1];
+  };
+
+  this.getRightStickX = function(name) {
+    var gamepad = this.gamepads[name];
+    if (!gamepad) {
+      return 0;
+    }
+    return gamepad.axes[2];
+  };
+
+  this.getRightStickY = function(name) {
+    var gamepad = this.gamepads[name];
+    if (!gamepad) {
+      return 0;
+    }
+    return gamepad.axes[3];
   };
 };
 
@@ -461,6 +481,18 @@ var createGamepad = function(interpreter, scope, name) {
   };
   interpreter.setProperty(gamepad, 'getLeftStickY',
       interpreter.createNativeFunction(getLeftStickY));
+
+  var getRightStickX = function() {
+    return gamepadController.getRightStickX(name);
+  };
+  interpreter.setProperty(gamepad, 'getRightStickX',
+      interpreter.createNativeFunction(getRightStickX));
+
+  var getRightStickY = function() {
+    return gamepadController.getRightStickY(name);
+  };
+  interpreter.setProperty(gamepad, 'getRightStickY',
+      interpreter.createNativeFunction(getRightStickY));
 };
 
 var createDcMotor = function(interpreter, scope, name) {
