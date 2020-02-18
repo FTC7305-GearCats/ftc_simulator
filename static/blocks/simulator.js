@@ -496,6 +496,7 @@ function SimController() {
     Blockly.JavaScript.addReservedWords('highlightBlock');
     Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
     var code = Blockly.JavaScript.workspaceToCode(workspace);
+    console.log(code);
     this.myInterpreter = new Interpreter(code, initFunc);
     this.myInterpreter.appendCode('runOpMode();');
   };
