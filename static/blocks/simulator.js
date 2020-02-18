@@ -577,43 +577,10 @@ var createGamepad = function(interpreter, scope, name) {
 
   interpreter.setProperty(gamepad, 'name', name);
 
-  var getLeftStickX = function() {
-    return gamepadController.getLeftStickX(name);
-  };
-  interpreter.setProperty(gamepad, 'getLeftStickX',
-      interpreter.createNativeFunction(getLeftStickX));
-
-  var getLeftStickY = function() {
-    return gamepadController.getLeftStickY(name);
-  };
-  interpreter.setProperty(gamepad, 'getLeftStickY',
-      interpreter.createNativeFunction(getLeftStickY));
-
-  var getRightStickX = function() {
-    return gamepadController.getRightStickX(name);
-  };
-  interpreter.setProperty(gamepad, 'getRightStickX',
-      interpreter.createNativeFunction(getRightStickX));
-
-  var getRightStickY = function() {
-    return gamepadController.getRightStickY(name);
-  };
-  interpreter.setProperty(gamepad, 'getRightStickY',
-      interpreter.createNativeFunction(getRightStickY));
-
-  var getLeftTrigger = function() {
-    return gamepadController.getLeftTrigger(name);
-  };
-  interpreter.setProperty(gamepad, 'getLeftTrigger',
-      interpreter.createNativeFunction(getLeftTrigger));
-
-  var getRightTrigger = function() {
-    return gamepadController.getRightTrigger(name);
-  };
-  interpreter.setProperty(gamepad, 'getRightTrigger',
-      interpreter.createNativeFunction(getRightTrigger));
-
-  var getButtonNames = [
+  var getFunctionNames = [
+    "LeftStickX", "LeftStickY",
+    "RightStickX", "RightStickY",
+    "LeftTrigger", "RightTrigger",
     "A", "B", "X", "Y",
     "LeftBumper", "RightBumper",
     "Back", "Start",
@@ -622,8 +589,8 @@ var createGamepad = function(interpreter, scope, name) {
     "Guide", "AtRest"
   ];
   // XXX This is a potential security risk?
-  for (i = 0; i < getButtonNames.length; i++) {
-    fnname = "get" + getButtonNames[i];
+  for (i = 0; i < getFunctionNames.length; i++) {
+    fnname = "get" + getFunctionNames[i];
     fn = Function(`return gamepadController.${fnname}("${name}");`);
     interpreter.setProperty(gamepad, fnname,
         interpreter.createNativeFunction(fn));
