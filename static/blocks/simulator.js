@@ -43,6 +43,10 @@ function Gamepad() {
   // Mapping of buttons/axes.
   // https://w3c.github.io/gamepad/#remapping
 
+  // Test pages
+  // https://luser.github.io/gamepadtest/
+  // https://html5gamepad.com/
+
   this.getAxis = function(name, index) {
     var gamepad = this.gamepads[name];
     if (!gamepad) {
