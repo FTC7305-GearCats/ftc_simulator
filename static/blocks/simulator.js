@@ -183,6 +183,11 @@ function Robot() {
     this.x += nx;
     this.y += ny;
     this.angle += dO;
+
+    // If the angle has changed, need to add a point.
+    if (dO >= 0.001 || dO <= 0.001) {
+      this.trail_add_point = true;
+    }
   };
 
   this.update_encoders = function(delta_sec) {
