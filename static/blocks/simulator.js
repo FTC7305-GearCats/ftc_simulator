@@ -558,7 +558,7 @@ function SimController() {
     this.robot_dom.setAttribute('y', realRobot.y);
     var deg = realRobot.angle * 180 / Math.PI;
     this.robot_dom.setAttribute('transform',
-        `rotate(${deg} ${realRobot.x} ${realRobot.y}) translate(-1 -0.5)`);
+        `rotate(${deg} ${realRobot.x} ${realRobot.y}) translate(-21.77 -20.95)`);
 
     update_trail(this.trail_dom);
     camera.update(realRobot.x, realRobot.y);

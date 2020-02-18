@@ -213,24 +213,39 @@
         <button onclick="stopSimulator()">Stop Simulator</button>
       </div>
       <svg id="world" width="500px" height="500px"
-           viewbox="-1000 -1000 2000 2000"
+           viewbox="-50 -50 100 100"
            style="border: 0.5rem solid">
         <defs>
-          <pattern id="grid" width="10" height="10"
+          <pattern id="grid" width="100" height="100"
                    patternUnits="userSpaceOnUse">
-            <path d="M 10 0 L 0 0 0 10"
+            <path d="M 100 0 L 0 0 0 100"
                   fill="none" stroke="gray" stroke-width="0.5"/>
           </pattern>
+          <symbol id="wheel">
+            <rect x="0" y="0" width="5" height="10" fill="#e3c500"
+                  stroke="black" stroke-width="0.45"/>
+          </symbol>
           <symbol id="robot_diagram">
-            <path d="M 0 0 L 1 1 L 2 0 L 0 0"
+            <!-- Center is 21.77, 20.95 -->
+            <use id="frwheel" xlink:href="#wheel" x="0" y="28.09"/>
+            <use id="flwheel" xlink:href="#wheel" x="38.54" y="28.09"/>
+            <use id="brwheel" xlink:href="#wheel" x="0" y="0"/>
+            <use id="blwheel" xlink:href="#wheel" x="38.54" y="0"/>
+            <rect x="5.72" y="0" width="32.1" height="41.9" fill="#BBB"/>
+            <rect x=".98" y="38.73" width="41.59" height="3.17" fill="#BBB"/>
+            <path d="M 6.72 20.95 L 21.77 30.95 L 36.82 20.95 L 6.72 20.95"
           </symbol>
         </defs>
         <rect id="world_grid" fill="url(#grid)"/>
+        <!-- Reference lines for drawing
+        <line x1="-50" y1="0" x2="50" y2="0" stroke="red" />
+        <line x1="0" y1="-50" x2="0" y2="50" stroke="red" />
+        -->
         <path id="robot_trail" fill="none" stroke="red" />
         <use id="robot"
              xlink:href="#robot_diagram"
              x="0" y="0"
-             transform="translate(-1 -0.5)" />
+             transform="translate(-21.77 -20.95)" />
       </svg>
     </div>
   </div>
