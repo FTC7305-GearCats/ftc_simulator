@@ -208,7 +208,10 @@
     </div>
     <div class="dragBar" id="dragBar2" draggable="true"></div>
     <div id="simulatorArea" class="vertical_area no_min_width">
-      <button onclick="runSimulator()">Run Simulator</button>
+      <div>
+        <button onclick="runSimulator()">Run Simulator</button>
+        <button onclick="stopSimulator()">Stop Simulator</button>
+      </div>
       <svg id="world" width="500px" height="500px"
            viewbox="-1000 -1000 2000 2000"
            style="border: 0.5rem solid">

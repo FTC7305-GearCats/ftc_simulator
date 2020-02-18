@@ -391,6 +391,8 @@ function SimController() {
       window.cancelAnimationFrame(this.anim_handle);
     }
     this.anim_handle = null;
+    // Stop highlighting blocks.
+    workspace.highlightBlock(null);
   };
 }
 
