@@ -1,0 +1,19 @@
+---
+# Clean up raspberian default setup.
+# Depends on user-setup.yaml.
+
+- hosts: edison
+  remote_user: dwatson
+  become: yes
+
+  tasks:
+    - name: Remove the pi user.
+      user:
+        name: pi
+        state: absent
+        remove: yes
+
+    - name: Delete the passwordless sudo for pi user.
+      file:
+        path: /etc/sudoers.d/010_pi-nopasswd
+        state: absent
