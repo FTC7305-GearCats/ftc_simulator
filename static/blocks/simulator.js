@@ -43,52 +43,141 @@ function Gamepad() {
   // Mapping of buttons/axes.
   // https://w3c.github.io/gamepad/#remapping
 
-  this.getLeftStickX = function(name) {
+  this.getAxis = function(name, index) {
     var gamepad = this.gamepads[name];
     if (!gamepad) {
       return 0;
     }
-    return gamepad.axes[0];
+    return gamepad.axes[index];
+  };
+
+  this.getLeftStickX = function(name) {
+    return this.getAxis(name, 0);
   };
 
   this.getLeftStickY = function(name) {
-    var gamepad = this.gamepads[name];
-    if (!gamepad) {
-      return 0;
-    }
-    return gamepad.axes[1];
+    return this.getAxis(name, 1);
   };
 
   this.getRightStickX = function(name) {
-    var gamepad = this.gamepads[name];
-    if (!gamepad) {
-      return 0;
-    }
-    return gamepad.axes[2];
+    return this.getAxis(name, 2);
   };
 
   this.getRightStickY = function(name) {
+    return this.getAxis(name, 3);
+  };
+
+  this.getButtonValue = function(name, index) {
+    this.getAxis(name, 3);
     var gamepad = this.gamepads[name];
     if (!gamepad) {
       return 0;
     }
-    return gamepad.axes[3];
+    return gamepad.buttons[index].value;
   };
 
   this.getLeftTrigger = function(name) {
-    var gamepad = this.gamepads[name];
-    if (!gamepad) {
-      return 0;
-    }
-    return gamepad.buttons[6].value;
+    return this.getButtonValue(name, 6);
   };
 
   this.getRightTrigger = function(name) {
+    return this.getButtonValue(name, 7);
+  };
+
+  this.getButtonPressed = function(name, index) {
+    var gamepad = this.gamepads[name];
+    if (!gamepad) {
+      return false;
+    }
+    return gamepad.buttons[index].pressed;
+  };
+
+  this.getA = function(name) {
+    return this.getButtonPressed(name, 0);
+  };
+
+  this.getB = function(name) {
+    return this.getButtonPressed(name, 1);
+  };
+
+  this.getX = function(name) {
+    return this.getButtonPressed(name, 2);
+  };
+
+  this.getY = function(name) {
+    return this.getButtonPressed(name, 3);
+  };
+
+  this.getLeftBumper = function(name) {
+    return this.getButtonPressed(name, 4);
+  };
+
+  this.getRightBumper = function(name) {
+    return this.getButtonPressed(name, 5);
+  };
+
+  // 6 and 7 are the triggers, not treated as buttons.
+
+  this.getBack = function(name) {
+    return this.getButtonPressed(name, 8);
+  };
+
+  this.getStart = function(name) {
+    return this.getButtonPressed(name, 9);
+  };
+
+  this.getLeftStickButton = function(name) {
+    return this.getButtonPressed(name, 10);
+  };
+
+  this.getRightStickButton = function(name) {
+    return this.getButtonPressed(name, 11);
+  };
+
+  this.getDpadUp = function(name) {
+    return this.getButtonPressed(name, 12);
+  };
+
+  this.getDpadDown = function(name) {
+    return this.getButtonPressed(name, 13);
+  };
+
+  this.getDpadLeft = function(name) {
+    return this.getButtonPressed(name, 14);
+  };
+
+  this.getDpadRight = function(name) {
+    return this.getButtonPressed(name, 15);
+  };
+
+  this.getGuide = function(name) {
+    // Not implemented in html5.
+    return false;
+  };
+
+  this.getAtRest = function(name) {
+    // "Returns true if all analog sticks and triggers are in their
+    //  rest position."
+    var i;
+
     var gamepad = this.gamepads[name];
     if (!gamepad) {
       return 0;
     }
-    return gamepad.buttons[7].value;
+    // Analog joysticks.
+    for (i = 0; i < gamepad.axes.length; i++) {
+      if (Math.abs(gamepad.axes[i]) > 0.05) {
+        console.log(i, gamepad.axes[i]);
+        return false;
+      }
+    }
+    // Triggers.
+    for (i = 6; i < 8; i++) {
+      if (gamepad.buttons[i].value != 0) {
+        return false;
+      }
+    }
+    return true;
   };
 };
 
@@ -481,6 +570,8 @@ function SimController() {
 }
 
 var createGamepad = function(interpreter, scope, name) {
+  var i, fn, fnname;
+
   var gamepad = interpreter.nativeToPseudo({});
   interpreter.setProperty(scope, name, gamepad);
 
@@ -521,6 +612,22 @@ var createGamepad = function(interpreter, scope, name) {
   };
   interpreter.setProperty(gamepad, 'getRightTrigger',
       interpreter.createNativeFunction(getRightTrigger));
+
+  var getButtonNames = [
+    "A", "B", "X", "Y",
+    "LeftBumper", "RightBumper",
+    "Back", "Start",
+    "LeftStickButton", "RightStickButton",
+    "DpadUp", "DpadDown", "DpadLeft", "DpadRight",
+    "Guide", "AtRest"
+  ];
+  // XXX This is a potential security risk?
+  for (i = 0; i < getButtonNames.length; i++) {
+    fnname = "get" + getButtonNames[i];
+    fn = Function(`return gamepadController.${fnname}("${name}");`);
+    interpreter.setProperty(gamepad, fnname,
+        interpreter.createNativeFunction(fn));
+  }
 };
 
 var createDcMotor = function(interpreter, scope, name) {
