@@ -244,16 +244,16 @@ function initializeSplit(show_java, show_sim) {
 
   if (show_java && show_sim) {
     sizes = [50, 25, 25];
-  } else {
-    sizes = [75, 25];
   }
   if (show_java) {
     minSize.push(100);
     areas.push(javaArea);
+    sizes = [75, 25];
   }
   if (show_sim) {
     minSize.push(500);
     areas.push(simulatorArea);
+    sizes = [50, 50];
   }
   split = window.Split(areas, {
     direction: 'horizontal',
