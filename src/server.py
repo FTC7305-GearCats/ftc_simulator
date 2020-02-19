@@ -19,6 +19,8 @@ conn = sqlite3.connect(data_dir / "blocks.db",
                        detect_types=sqlite3.PARSE_DECLTYPES)
 conn.row_factory = sqlite3.Row
 
+application = bottle.Bottle()
+
 def safe_path(base, path):
     basepath = pathlib.Path(base)
     fn = basepath / path
@@ -28,7 +30,7 @@ def safe_path(base, path):
         raise Error("Invalid path!")
     return fn
 
-@bottle.route("/list")
+@application.route("/list")
 def list():
     c = conn.cursor()
     c.execute("""SELECT dateModifiedMillis, enabled, escapedName, name
@@ -36,7 +38,7 @@ def list():
     data = c.fetchall()
     return json.dumps([dict(r) for r in data])
 
-@bottle.route("/samples")
+@application.route("/samples")
 def samples():
     c = conn.cursor()
     c.execute("""SELECT escapedName, name, requestedCapabilities
@@ -44,22 +46,22 @@ def samples():
     data = c.fetchall()
     return json.dumps([dict(r) for r in data])
 
-@bottle.route("/get_blocks_java_class_name", method="POST")
+@application.route("/get_blocks_java_class_name", method="POST")
 def get_blocks_java_class_name():
     # For now, this is good enough, but it's not a real substitute
     # for the real code, which really tries to construct a valid Java
     # class name.
-    return "_" + bottle.request.forms.get("name")
+    return "_" + application.request.forms.get("name")
 
-@bottle.route("/fetch_blk", method="POST")
+@application.route("/fetch_blk", method="POST")
 def fetch_blk():
-    name = bottle.request.forms.get("name")
-    return bottle.static_file(name + ".blk", root=program_dir)
+    name = application.request.forms.get("name")
+    return application.static_file(name + ".blk", root=program_dir)
 
-@bottle.route("/new", method="POST")
+@application.route("/new", method="POST")
 def new():
-    name = bottle.request.forms.get("name")
-    sample = bottle.request.forms.get("sample")
+    name = application.request.forms.get("name")
+    sample = application.request.forms.get("sample")
     if not sample:
         sample = "default"
 
@@ -76,12 +78,12 @@ def new():
                  (:dateModifiedMillis, :enabled, :escapedName, :name)""",
               prog)
     conn.commit()
-    return bottle.static_file(sample + ".blk", root=samples_dir)
+    return application.static_file(sample + ".blk", root=samples_dir)
 
-@bottle.route("/save", method="POST")
+@application.route("/save", method="POST")
 def save():
-    name = bottle.request.forms.get("name")
-    blk = bottle.request.forms.get("blk")
+    name = application.request.forms.get("name")
+    blk = application.request.forms.get("blk")
 
     now_ms = int(round(datetime.datetime.utcnow().timestamp() * 1000))
     prog = {
@@ -104,9 +106,9 @@ def save():
     with open(fn, "w") as f:
         f.write(blk)
 
-@bottle.route("/delete", method="POST")
+@application.route("/delete", method="POST")
 def delete():
-    names = bottle.request.forms.get("name").split("*")
+    names = application.request.forms.get("name").split("*")
     c = conn.cursor()
     for name in names:
         c.execute("DELETE FROM blocks WHERE name = ?", [name])
@@ -114,10 +116,10 @@ def delete():
         fn.unlink()
         conn.commit()
 
-@bottle.route("/rename", method="POST")
+@application.route("/rename", method="POST")
 def rename():
-    name = bottle.request.forms.get("name")
-    new_name = bottle.request.forms.get("new_name")
+    name = application.request.forms.get("name")
+    new_name = application.request.forms.get("new_name")
 
     c = conn.cursor()
     c.execute("UPDATE blocks SET name = ?, escapedName = ? WHERE name = ?",
@@ -127,10 +129,10 @@ def rename():
     old_fn.rename(new_fn)
     conn.commit()
 
-@bottle.route("/copy", method="POST")
+@application.route("/copy", method="POST")
 def copy():
-    name = bottle.request.forms.get("name")
-    new_name = bottle.request.forms.get("new_name")
+    name = application.request.forms.get("name")
+    new_name = application.request.forms.get("new_name")
 
     now_ms = int(round(datetime.datetime.utcnow().timestamp() * 1000))
     prog = {
@@ -151,16 +153,16 @@ def copy():
     shutil.copy(old_fn, new_fn)
     conn.commit()
     # XXX Not sure is this is the right return...
-    return bottle.static_file(new_name + ".blk", root=program_dir)
+    return application.static_file(new_name + ".blk", root=program_dir)
 
-@bottle.route("/")
+@application.route("/")
 def static_index():
     # XXX Hack, should just fix below to work correctly.
-    return bottle.static_file("index.html", root="../static")
+    return application.static_file("index.html", root="../static")
 
-@bottle.route("/<path:path>")
+@application.route("/<path:path>")
 def static(path):
-    return bottle.static_file(path, root="../static")
+    return application.static_file(path, root="../static")
 
 if __name__ == "__main__":
-    bottle.run(host="localhost", port=8080)
+    application.run(host="localhost", port=8080)
