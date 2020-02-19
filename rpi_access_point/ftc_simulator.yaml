@@ -6,7 +6,7 @@
   become: yes
 
   tasks:
-    - name: Create directories.
+    - name: Create home directories.
       file:
         path: /home/dwatson/{{ item.dir }}
         owner: dwatson
@@ -17,6 +17,18 @@
         - { dir: 'work' }
         - { dir: 'work/ftc_simulator' }
         - { dir: 'work/ftc_simulator/src' }
+
+    - name: Create www-data directories.
+      file:
+        path: /var/www/{{ item.dir }}
+        owner: dwatson
+        group: dwatson
+        state: directory
+        mode: '0755'
+      with_items:
+        - { dir: 'work/ftc_simulator/data' }
+        - { dir: 'work/ftc_simulator/data/programs' }
+        - { dir: 'work/ftc_simulator/data/samples' }
 
     - name: Copy requirements file.
       copy:
@@ -43,6 +55,31 @@
         - { src: 'server.py' }
         - { src: 'fetch_from_phone.py' }
         - { src: 'setup.sql' }
+
+    - name: Copy samples.
+      copy:
+        src: "{{ item }}"
+        dest: /var/www/work/ftc_simulator/data/samples/
+        owner: www-data
+        group: www-data
+        mode: 0644
+      with_fileglob:
+        - "/Users/dwatson/work/ftc_simulator/data/samples/*.blk"
+
+    - name: Copy static html files.
+      local_action: command rsync -av /Users/dwatson/work/ftc_simulator/static {{ inventory_hostname }}:~/
+      become: no
+
+    - name: Move static files into the correct directory.
+      command: rsync -av /home/dwatson/static/ /var/www/html
+
+    - name: Fix html file permissions.
+      file:
+        path: /var/www
+        owner: www-data
+        group: www-data
+        recurse: yes
+        state: directory
 
     - name: Copy ftc sim uwsgi config.
       copy:
