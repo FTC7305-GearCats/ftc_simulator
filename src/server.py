@@ -51,17 +51,17 @@ def get_blocks_java_class_name():
     # For now, this is good enough, but it's not a real substitute
     # for the real code, which really tries to construct a valid Java
     # class name.
-    return "_" + application.request.forms.get("name")
+    return "_" + bottle.request.forms.get("name")
 
 @application.route("/fetch_blk", method="POST")
 def fetch_blk():
-    name = application.request.forms.get("name")
-    return application.static_file(name + ".blk", root=program_dir)
+    name = bottle.request.forms.get("name")
+    return bottle.static_file(name + ".blk", root=program_dir)
 
 @application.route("/new", method="POST")
 def new():
-    name = application.request.forms.get("name")
-    sample = application.request.forms.get("sample")
+    name = bottle.request.forms.get("name")
+    sample = bottle.request.forms.get("sample")
     if not sample:
         sample = "default"
 
@@ -78,12 +78,12 @@ def new():
                  (:dateModifiedMillis, :enabled, :escapedName, :name)""",
               prog)
     conn.commit()
-    return application.static_file(sample + ".blk", root=samples_dir)
+    return bottle.static_file(sample + ".blk", root=samples_dir)
 
 @application.route("/save", method="POST")
 def save():
-    name = application.request.forms.get("name")
-    blk = application.request.forms.get("blk")
+    name = bottle.request.forms.get("name")
+    blk = bottle.request.forms.get("blk")
 
     now_ms = int(round(datetime.datetime.utcnow().timestamp() * 1000))
     prog = {
@@ -108,7 +108,7 @@ def save():
 
 @application.route("/delete", method="POST")
 def delete():
-    names = application.request.forms.get("name").split("*")
+    names = bottle.request.forms.get("name").split("*")
     c = conn.cursor()
     for name in names:
         c.execute("DELETE FROM blocks WHERE name = ?", [name])
@@ -118,8 +118,8 @@ def delete():
 
 @application.route("/rename", method="POST")
 def rename():
-    name = application.request.forms.get("name")
-    new_name = application.request.forms.get("new_name")
+    name = bottle.request.forms.get("name")
+    new_name = bottle.request.forms.get("new_name")
 
     c = conn.cursor()
     c.execute("UPDATE blocks SET name = ?, escapedName = ? WHERE name = ?",
@@ -131,8 +131,8 @@ def rename():
 
 @application.route("/copy", method="POST")
 def copy():
-    name = application.request.forms.get("name")
-    new_name = application.request.forms.get("new_name")
+    name = bottle.request.forms.get("name")
+    new_name = bottle.request.forms.get("new_name")
 
     now_ms = int(round(datetime.datetime.utcnow().timestamp() * 1000))
     prog = {
@@ -153,16 +153,16 @@ def copy():
     shutil.copy(old_fn, new_fn)
     conn.commit()
     # XXX Not sure is this is the right return...
-    return application.static_file(new_name + ".blk", root=program_dir)
+    return bottle.static_file(new_name + ".blk", root=program_dir)
 
 @application.route("/")
 def static_index():
     # XXX Hack, should just fix below to work correctly.
-    return application.static_file("index.html", root="../static")
+    return bottle.static_file("index.html", root="../static")
 
 @application.route("/<path:path>")
 def static(path):
-    return application.static_file(path, root="../static")
+    return bottle.static_file(path, root="../static")
 
 if __name__ == "__main__":
     application.run(host="localhost", port=8080)
