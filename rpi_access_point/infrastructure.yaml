@@ -30,6 +30,11 @@
         name: python3-venv
         state: present
 
+    - name: Install sqlite3.
+      package:
+        name: sqlite3
+        state: present
+
     - name: Disable default nginx config.
       file:
         path: /etc/nginx/sites-enabled/default
