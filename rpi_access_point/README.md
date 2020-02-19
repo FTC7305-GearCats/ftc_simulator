@@ -4,4 +4,6 @@ ansible-playbook pi-cleanup.yaml -i hosts --ask-become-pass
 ansible-playbook infrastructure.yaml -i hosts --ask-become-pass
 ansible-playbook ftc_simulator.yaml -i hosts --ask-become-pass
 
-ssh edison "sqlite3 work/ftc_simulator/data/blocks.db < work/ftc_simulator/src/setup.sql"
+On the server:
+
+sudo -u www-data sqlite3 /var/www/work/ftc_simulator/data/blocks.db < ~dwatson/work/ftc_simulator/src/setup.sql
