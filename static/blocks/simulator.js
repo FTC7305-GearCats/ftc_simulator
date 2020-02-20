@@ -200,7 +200,15 @@ function Keyboard() {
   document.addEventListener('keyup', this.handleKeyUp.bind(this));
 
   this.poll = function() {
-    // Not needed.
+    // Look for a gamepad and switch if it shows up.
+    var all_gamepads = navigator.getGamepads();
+    for (var i = 0; i < all_gamepads.length; i++) {
+      if (all_gamepads[i]) {
+        gamepadController = new Gamepad();
+        gamepadController.poll();
+        return;
+      }
+    }
   };
 
   this.getAnalog = function(fk, sk) {
@@ -319,7 +327,7 @@ function Keyboard() {
   };
 };
 
-var gamepadController = new Keyboard(); // Gamepad();
+var gamepadController = new Keyboard();
 
 function Robot() {
   // Lengths are in cm.
