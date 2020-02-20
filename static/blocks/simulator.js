@@ -185,7 +185,141 @@ function Gamepad() {
   };
 };
 
-var gamepadController = new Gamepad();
+function Keyboard() {
+  this.keysPressed = {};
+
+  this.handleKeyDown = function(e) {
+    this.keysPressed[e.code] = true;
+  };
+
+  this.handleKeyUp = function(e) {
+    this.keysPressed[e.code] = false;
+  };
+
+  document.addEventListener('keydown', this.handleKeyDown.bind(this));
+  document.addEventListener('keyup', this.handleKeyUp.bind(this));
+
+  this.poll = function() {
+    // Not needed.
+  };
+
+  this.getAnalog = function(fk, sk) {
+    var value = 0;
+    if (this.keysPressed[fk]) {
+      value -= 1;
+    }
+    if (this.keysPressed[sk]) {
+      value += 1;
+    }
+    return value;
+  };
+
+  this.getLeftStickX = function(name) {
+    return this.getAnalog("KeyA", "KeyD");
+  };
+
+  this.getLeftStickY = function(name) {
+    return this.getAnalog("KeyW", "KeyS");
+  };
+
+  this.getRightStickX = function(name) {
+    return this.getAnalog("ArrowLeft", "ArrowRight");
+  };
+
+  this.getRightStickY = function(name) {
+    return this.getAnalog("ArrowUp", "ArrowDown");
+  };
+
+  this.getLeftTrigger = function(name) {
+    return this.getAnalog("DoesNotExist", "ShiftRight");
+  };
+
+  this.getRightTrigger = function(name) {
+    return this.getAnalog("DoesNotExist", "ShiftLeft");
+  };
+
+  this.getA = function(name) {
+    return this.keysPressed["KeyK"] || false;
+  };
+
+  this.getB = function(name) {
+    return this.keysPressed["KeyL"] || false;
+  };
+
+  this.getX = function(name) {
+    return this.keysPressed["KeyJ"] || false;
+  };
+
+  this.getY = function(name) {
+    return this.keysPressed["KeyI"] || false;
+  };
+
+  this.getLeftBumper = function(name) {
+    return this.keysPressed["KeyQ"] || false;
+  };
+
+  this.getRightBumper = function(name) {
+    return this.keysPressed["KeyE"] || false;
+  };
+
+  // 6 and 7 are the triggers, not treated as buttons.
+
+  this.getBack = function(name) {
+    return this.keysPressed["Digit1"] || false;
+  };
+
+  this.getStart = function(name) {
+    return this.keysPressed["Digit3"] || false;
+  };
+
+  this.getLeftStickButton = function(name) {
+    return this.keysPressed["KeyX"] || false;
+  };
+
+  this.getRightStickButton = function(name) {
+    return this.keysPressed["Slash"] || false;
+  };
+
+  this.getDpadUp = function(name) {
+    return this.keysPressed["KeyT"] || false;
+  };
+
+  this.getDpadDown = function(name) {
+    return this.keysPressed["KeyG"] || false;
+  };
+
+  this.getDpadLeft = function(name) {
+    return this.keysPressed["KeyF"] || false;
+  };
+
+  this.getDpadRight = function(name) {
+    return this.keysPressed["KeyH"] || false;
+  };
+
+  this.getGuide = function(name) {
+    return this.keysPressed["Digit2"] || false;
+  };
+
+  this.getAtRest = function(name) {
+    // "Returns true if all analog sticks and triggers are in their
+    //  rest position."
+    if (this.keysPressed["KeyA"] ||
+        this.keysPressed["KeyD"] ||
+        this.keysPressed["KeyW"] ||
+        this.keysPressed["KeyS"] ||
+        this.keysPressed["ArrowLeft"] ||
+        this.keysPressed["ArrowRight"] ||
+        this.keysPressed["ArrowUp"] ||
+        this.keysPressed["ArrowDown"] ||
+        this.keysPressed["ShiftRight"] ||
+        this.keysPressed["ShiftLeft"]) {
+      return false;
+    }
+    return true;
+  };
+};
+
+var gamepadController = new Keyboard(); // Gamepad();
 
 function Robot() {
   // Lengths are in cm.
