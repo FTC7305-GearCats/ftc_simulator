@@ -3,8 +3,11 @@ ansible-playbook user-setup.yaml -i hosts
 ansible-playbook pi-cleanup.yaml -i hosts --ask-become-pass
 ansible-playbook infrastructure.yaml -i hosts --ask-become-pass
 ansible-playbook ftc_simulator.yaml -i hosts --ask-become-pass
+ansible-playbook access_point.yaml -i hosts --ask-become-pass
 
-On the server:
+
+
+# Set up the database (one time only):
 
 sudo -u www-data sqlite3 /var/www/work/ftc_simulator/data/blocks.db < ~dwatson/work/ftc_simulator/src/setup.sql
 
