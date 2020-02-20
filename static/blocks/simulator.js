@@ -460,6 +460,9 @@ function Robot() {
 
     // Potentially changing or direction, add a new point.
     this.trail_add_point = true;
+
+    // Remember that this block changed the power.
+    simController.setPower = true;
   };
 
   this.isBusy = function(motor) {
@@ -681,14 +684,19 @@ function SimController() {
     // Chrome requires us to poll for gamepads every loop.
     gamepadController.poll();
 
-    // Run 10 instructions.  This should prevent getting half the motors set.
-    for (var i = 0; i < 10; i++) {
+    // Run until we hit another block.
+    this.highlightPause = false;
+    this.setPower = false;
+    var power_count = 0;
+    while (!this.highlightPause) {
       if (!this.myInterpreter.step()) {
         // It's done running, abort the next frame.
         window.cancelAnimationFrame(this.anim_handle);
         this.anim_handle = null;
         // Stop highlighting blocks.
         workspace.highlightBlock(null);
+        // Clear setPower so we don't run the next block.
+        this.setPower = false;
         // Break out of the loop.
         break;
       }
@@ -824,6 +832,7 @@ var initFunc = function(interpreter, scope) {
 
   var highlightBlock = function(id) {
     workspace.highlightBlock(id);
+    simController.highlightPause = true;
   };
   interpreter.setProperty(scope, 'highlightBlock',
       interpreter.createNativeFunction(highlightBlock));
