@@ -7,3 +7,8 @@ ansible-playbook ftc_simulator.yaml -i hosts --ask-become-pass
 On the server:
 
 sudo -u www-data sqlite3 /var/www/work/ftc_simulator/data/blocks.db < ~dwatson/work/ftc_simulator/src/setup.sql
+
+
+# To set up the usb console.
+
+https://www.tal.org/tutorials/raspberry-pi-zero-usb-serial-console
