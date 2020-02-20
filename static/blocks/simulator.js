@@ -637,6 +637,8 @@ function SimController() {
   this.robot_dom = document.getElementById('robot');
   this.trail_dom = document.getElementById('robot_trail');
 
+  this.asyncWait = false;
+
   this.myInterpreter = null;
 
   this.init = function() {
@@ -653,6 +655,7 @@ function SimController() {
   this.sleep = function(ms, callback) {
     this.sleepCallback = callback;
     this.sleepRemaining = ms;
+    this.asyncWait = true;
   };
 
   this.handleAsync = function(delta) {
@@ -664,6 +667,7 @@ function SimController() {
         this.sleepCallback();
         this.sleepCallback = null;
         this.sleepRemaining = 0;
+        this.asyncWait = false;
       }
     }
   };
@@ -684,20 +688,32 @@ function SimController() {
     // Chrome requires us to poll for gamepads every loop.
     gamepadController.poll();
 
-    // Run until we hit another block.
-    this.highlightPause = false;
-    this.setPower = false;
-    var power_count = 0;
-    while (!this.highlightPause) {
-      if (!this.myInterpreter.step()) {
-        // It's done running, abort the next frame.
-        window.cancelAnimationFrame(this.anim_handle);
-        this.anim_handle = null;
-        // Stop highlighting blocks.
-        workspace.highlightBlock(null);
-        // Clear setPower so we don't run the next block.
-        this.setPower = false;
-        // Break out of the loop.
+    // Allow up to 4 power set blocks at once.
+    var power_set_count = 0;
+    loop1:
+    while (power_set_count < 4) {
+      // Run until we hit another block.
+      this.setPower = false;
+      this.highlightPause = false;
+      while (!this.highlightPause && !this.asyncWait) {
+        if (!this.myInterpreter.step()) {
+          // It's done running, abort the next frame.
+          window.cancelAnimationFrame(this.anim_handle);
+          this.anim_handle = null;
+          // Stop highlighting blocks.
+          workspace.highlightBlock(null);
+          // Clear setPower so we don't run the next block.
+          this.setPower = false;
+          // Break out of the loop.
+          break loop1;
+        }
+      }
+
+      // If we set power this block, then keep going (up to 4 times).
+      if (this.setPower) {
+        power_set_count += 1;
+      } else {
+        // Else let the simulation continue.
         break;
       }
     }
