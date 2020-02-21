@@ -1,7 +1,7 @@
 ---
 # Set up the actual simulator app.
 
-- hosts: edison
+- hosts: rpi
   remote_user: dwatson
   become: yes
 
@@ -21,8 +21,8 @@
     - name: Create www-data directories.
       file:
         path: /var/www/{{ item.dir }}
-        owner: dwatson
-        group: dwatson
+        owner: www-data
+        group: www-data
         state: directory
         mode: '0755'
       with_items:
