@@ -13,8 +13,11 @@ programs = r.json()
 for prog in programs:
     print(prog)
     c.execute("""INSERT INTO blocks
-                 (dateModifiedMillis, enabled, escapedName, name) VALUES
-                 (:dateModifiedMillis, :enabled, :escapedName, :name)""",
+                   (dateModifiedMillis, enabled, escapedName, name)
+                 VALUES
+                   (:dateModifiedMillis, :enabled, :escapedName, :name)
+                 ON CONFLICT(name) DO UPDATE
+                   SET dateModifiedMillis = :dateModifiedMillis""",
               prog)
     data = {"name": prog["name"]}
     r = httpx.post("http://192.168.49.1:8080/fetch_blk", data=data)
@@ -22,15 +25,17 @@ for prog in programs:
     with open(fn, "w") as f:
         f.write(r.text)
 
-r = httpx.get("http://192.168.49.1:8080/samples")
-samples = r.json()
-for samp in samples:
-    print(samp)
-    c.execute("""INSERT INTO samples
-                 (escapedName, name, requestedCapabilities) VALUES
-                 (?, ?, ?)""",
-              [samp["escapedName"], samp["name"],
-               json.dumps(samp["requestedCapabilities"])])
+# Only really need to do this once.
+if False:
+    r = httpx.get("http://192.168.49.1:8080/samples")
+    samples = r.json()
+    for samp in samples:
+        print(samp)
+        c.execute("""INSERT INTO samples
+                     (escapedName, name, requestedCapabilities) VALUES
+                     (?, ?, ?)""",
+                  [samp["escapedName"], samp["name"],
+                   json.dumps(samp["requestedCapabilities"])])
 
 conn.commit()
 conn.close()
