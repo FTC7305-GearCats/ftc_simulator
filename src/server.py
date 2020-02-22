@@ -8,6 +8,7 @@ import html
 import datetime
 import pathlib
 import shutil
+import configparser
 
 os.umask(0o022)
 
@@ -31,6 +32,16 @@ def safe_path(base, path):
     if fn.parent != basepath:
         raise Error("Invalid path!")
     return fn
+
+class Config:
+    def __init__(self):
+        config = configparser.ConfigParser()
+        with open("/etc/hostapd/hostapd.conf") as f:
+            config.read_string("[top]\n" + f.read())
+        self.ssid = config.get("top", "ssid")
+        self.passphrase = config.get("top", "wpa_passphrase")
+
+config = Config()
 
 @application.route("/list")
 def list():
@@ -156,6 +167,23 @@ def copy():
     conn.commit()
     # XXX Not sure is this is the right return...
     return bottle.static_file(new_name + ".blk", root=program_dir)
+
+@application.route("/js/rcInfo.json")
+def rc_info():
+    return {
+        "appUpdateRequiresReboot": True,
+        "deviceName": "7305-C-RC",
+        "ftcUserAgentCategory":"OTHER",
+        "isREVControlHub": False,
+        "networkName": config.ssid,
+        "passphrase": config.passphrase,
+        "serverIsAlive": True,
+        "serverUrl": "http://192.168.49.1:8080",
+        "supports5GhzAp": False,
+        "supportsOtaUpdate": False,
+        "timeServerStarted": "Feb 12, 8:33 PM",
+        "timeServerStartedMillis": 1581557600059,
+    }
 
 @application.route("/")
 def static_index():
