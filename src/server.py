@@ -37,10 +37,15 @@ def safe_path(base, path):
 class Config:
     def __init__(self):
         config = configparser.ConfigParser()
-        with open("/etc/hostapd/hostapd.conf") as f:
-            config.read_string("[top]\n" + f.read())
-        self.ssid = config.get("top", "ssid")
-        self.passphrase = config.get("top", "wpa_passphrase")
+        try:
+            with open("/etc/hostapd/hostapd.conf") as f:
+                data = f.read()
+        except FileNotFoundError:
+            data = ""
+        config.read_string("[top]\n" + data)
+        top = config["top"]
+        self.ssid = top.get("ssid", "")
+        self.passphrase = top.get("wpa_passphrase", "")
 
 config = Config()
 
