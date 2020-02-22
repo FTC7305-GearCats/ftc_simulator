@@ -1,7 +1,7 @@
 ---
 # Set up access point.
 
-- hosts: edison
+- hosts: rpi
   remote_user: dwatson
   become: yes
   vars_files:
