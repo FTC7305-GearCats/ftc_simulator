@@ -9,6 +9,7 @@ import datetime
 import pathlib
 import shutil
 import configparser
+import urllib
 
 os.umask(0o022)
 
@@ -170,6 +171,9 @@ def copy():
 
 @application.route("/js/rcInfo.json")
 def rc_info():
+    parsed_url = urllib.parse.urlparse(bottle.request.url)
+    url = urllib.parse.urlunparse((parsed_url[0], parsed_url[1],
+                                   "", "", "", ""))
     return {
         "appUpdateRequiresReboot": True,
         "deviceName": "7305-C-RC",
@@ -178,7 +182,7 @@ def rc_info():
         "networkName": config.ssid,
         "passphrase": config.passphrase,
         "serverIsAlive": True,
-        "serverUrl": "http://192.168.49.1:8080",
+        "serverUrl": url,
         "supports5GhzAp": False,
         "supportsOtaUpdate": False,
         "timeServerStarted": "Feb 12, 8:33 PM",
