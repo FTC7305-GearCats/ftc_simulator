@@ -47,6 +47,17 @@ class Config:
         self.ssid = top.get("ssid", "")
         self.passphrase = top.get("wpa_passphrase", "")
 
+        self.btime = 0
+        try:
+            with open("/proc/stat") as f:
+                for line in f:
+                    if line.startswith("btime"):
+                        self.btime = int(line.split()[1])
+        except FileNotFoundError:
+            pass
+        self.btime_fmt = (datetime.datetime.fromtimestamp(self.btime)
+                          .strftime("%b %-d, %-I:%M %p"))
+
 config = Config()
 
 @application.route("/list")
@@ -190,8 +201,8 @@ def rc_info():
         "serverUrl": url,
         "supports5GhzAp": False,
         "supportsOtaUpdate": False,
-        "timeServerStarted": "Feb 12, 8:33 PM",
-        "timeServerStartedMillis": 1581557600059,
+        "timeServerStarted": config.btime_fmt,
+        "timeServerStartedMillis": config.btime * 1000,
     }
 
 @application.route("/")
