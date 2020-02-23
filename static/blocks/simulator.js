@@ -239,11 +239,11 @@ function Keyboard() {
   };
 
   this.getLeftTrigger = function(name) {
-    return this.getAnalog("DoesNotExist", "ShiftRight");
+    return this.getAnalog("DoesNotExist", "ShiftLeft");
   };
 
   this.getRightTrigger = function(name) {
-    return this.getAnalog("DoesNotExist", "ShiftLeft");
+    return this.getAnalog("DoesNotExist", "ShiftRight");
   };
 
   this.getA = function(name) {
