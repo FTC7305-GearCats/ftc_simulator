@@ -399,10 +399,10 @@ function Robot() {
   // Positive values move the robot to the right (XXX Is this correct?).
   this.vz_mult = [-1.0, -1.0, 1.0, 1.0];
   // XXX Check signs
-  this.omega0_mult= [1/(this.l1 + this.l2),
-                     1/(this.l1 + this.l2),
-                     1/(this.l1 + this.l2),
-                     1/(this.l1 + this.l2)];
+  this.omega0_mult= [-1/(this.l1 + this.l2),
+                     -1/(this.l1 + this.l2),
+                     -1/(this.l1 + this.l2),
+                     -1/(this.l1 + this.l2)];
 
   this.motor_names =["FLmotorAsDcMotor",
                      "FRmotorAsDcMotor",
