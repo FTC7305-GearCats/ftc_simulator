@@ -10,7 +10,10 @@ var linearOpMode = {
 };
 
 var telemetry = {
-  update: function() {}
+  update: function() {},
+  addNumericData: function(name, value) {
+    console.log("telemetry", name, value);
+  }
 };
 
 function Gamepad() {
