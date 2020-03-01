@@ -11,7 +11,12 @@ var linearOpMode = {
 
 var telemetry = {
   update: function() {},
+  // XXX This should really show up on the screen, maybe even a graph.
   addNumericData: function(name, value) {
+    console.log("telemetry", name, value);
+  },
+  // XXX Why is this not inside telemetry?
+  addTextData: function(name, value) {
     console.log("telemetry", name, value);
   }
 };
@@ -841,6 +846,8 @@ var initFunc = function(interpreter, scope) {
 
   var tel = interpreter.nativeToPseudo(telemetry);
   interpreter.setProperty(scope, 'telemetry', tel);
+  interpreter.setProperty(scope, 'telemetryAddTextData',
+      interpreter.createNativeFunction(telemetry.addTextData));
 
   createDcMotor(interpreter, scope, "FLmotorAsDcMotor");
   createDcMotor(interpreter, scope, "FRmotorAsDcMotor");
