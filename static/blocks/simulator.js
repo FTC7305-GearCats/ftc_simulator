@@ -3,9 +3,17 @@ var camera;
 var simController;
 
 var linearOpMode = {
-  waitForStart: function() {},
+  waitForStart: function() {
+    self._startTime = Date.now();
+    console.log(self._startTime);
+  },
   opModeIsActive: function() {
     return true;
+  },
+  getRuntime: function() {
+    const now = Date.now();
+    const delta = (now - self._startTime) / 1000;
+    return delta;
   },
 };
 
