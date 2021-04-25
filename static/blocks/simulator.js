@@ -865,6 +865,13 @@ var createServoMotor = function(interpreter, scope, name) {
   };
   interpreter.setProperty(motor, 'scaleRange',
       interpreter.createNativeFunction(scaleRange));
+
+  var getPosition = function() {
+    console.log("getPosition", name);
+    return 3.0;
+  };
+  interpreter.setProperty(motor, 'getPosition',
+      interpreter.createNativeFunction(getPosition));
 };
 
 var initFunc = function(interpreter, scope) {
