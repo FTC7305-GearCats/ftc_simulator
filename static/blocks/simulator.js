@@ -842,6 +842,31 @@ var createDcMotor = function(interpreter, scope, name) {
       interpreter.createNativeFunction(isBusy));
 };
 
+var createServoMotor = function(interpreter, scope, name) {
+  var motor = interpreter.nativeToPseudo({});
+  interpreter.setProperty(scope, name, motor);
+
+  interpreter.setProperty(motor, 'name', name);
+
+  var setDirection = function(mode) {
+    console.log("setDirection", mode, name);
+  };
+  interpreter.setProperty(motor, 'setDirection',
+      interpreter.createNativeFunction(setDirection));
+
+  var setPosition = function(position) {
+    console.log("setPosition", position, name);
+  };
+  interpreter.setProperty(motor, 'setPosition',
+      interpreter.createNativeFunction(setPosition));
+
+  var scaleRange = function(min_val, max_val) {
+    console.log("scaleRange", min_val, max_val, name);
+  };
+  interpreter.setProperty(motor, 'scaleRange',
+      interpreter.createNativeFunction(scaleRange));
+};
+
 var initFunc = function(interpreter, scope) {
   var lom = interpreter.nativeToPseudo(linearOpMode);
   interpreter.setProperty(scope, 'linearOpMode', lom);
@@ -861,6 +886,12 @@ var initFunc = function(interpreter, scope) {
   createDcMotor(interpreter, scope, "FRmotorAsDcMotor");
   createDcMotor(interpreter, scope, "BLmotorAsDcMotor");
   createDcMotor(interpreter, scope, "BRmotorAsDcMotor");
+  createDcMotor(interpreter, scope, "Motor1AsDcMotor");
+  createDcMotor(interpreter, scope, "Motor2AsDcMotor");
+  createDcMotor(interpreter, scope, "Motor3AsDcMotor");
+
+  createServoMotor(interpreter, scope, "Servo1AsServo");
+  createServoMotor(interpreter, scope, "Servo2AsServo");
 
   createGamepad(interpreter, scope, "gamepad1");
 
