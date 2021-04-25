@@ -434,11 +434,8 @@ function Robot() {
   // Servo config.
 
   // Picked a random servo:
-  // 0.102 degrees per microsecond
-  // Convert from microseconds to milliseconds.
-  // XXX this.servo_speed = 0.102 * 1000;
-  // Make it slow!
-  this.servo_speed = 0.1;
+  // 0.20 sec/60 degrees
+  this.servo_speed = 60 / 0.20;
 
   // This must only be for continuous rotation servos.
   this.servo_direction = [1, 1];
@@ -610,8 +607,8 @@ function Robot() {
   };
 
   // Delta is in milliseconds.
-  this.update_servos = function(delta_ms) {
-    var delta = this.servo_speed * delta_ms;
+  this.update_servos = function(delta_sec) {
+    var delta = this.servo_speed * delta_sec;
     for (var i = 0; i < 2; i++) {
       if (this.servo_actual_position[i] < this.servo_commanded_position[i]) {
         this.servo_actual_position[i] += delta;
@@ -639,7 +636,7 @@ function Robot() {
     this.update_encoders(delta_sec);
     this.update_trail();
 
-    this.update_servos(delta);
+    this.update_servos(delta_sec);
   };
 }
 
