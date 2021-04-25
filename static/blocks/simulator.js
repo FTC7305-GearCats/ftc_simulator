@@ -427,17 +427,28 @@ function Robot() {
                      "FRmotorAsDcMotor",
                      "BLmotorAsDcMotor",
                      "BRmotorAsDcMotor",
-                     "Motor1",
-                     "Motor2",
-                     "Motor3"];
+                     "Motor1AsDcMotor",
+                     "Motor2AsDcMotor",
+                     "Motor3AsDcMotor"];
 
   // Servo config.
+
+  // Picked a random servo:
+  // 0.102 degrees per microsecond
+  // Convert from microseconds to milliseconds.
+  // XXX this.servo_speed = 0.102 * 1000;
+  // Make it slow!
+  this.servo_speed = 0.1;
+
+  // This must only be for continuous rotation servos.
   this.servo_direction = [1, 1];
+
+  // Positions are in degrees.
   this.servo_commanded_position = [0.0, 0.0];
   this.servo_actual_position = [0.0, 0.0];
 
-  this.servo_names = ["Servo1",
-                      "Servo2"];
+  this.servo_names = ["Servo1AsServo",
+                      "Servo2AsServo"];
 
   // Points on the trail that the robot has traversed.
   this.trail_add_point = false;
@@ -520,7 +531,7 @@ function Robot() {
     if (index < 0) {
       return;
     }
-    this.servo_commanded_position[index] = target;
+    this.servo_commanded_position[index] = target * 180.0;
   };
 
   this.getServoCommandedPosition = function(servo) {
@@ -528,7 +539,7 @@ function Robot() {
     if (index < 0) {
       return 0;
     }
-    return this.servo_commanded_position[index];
+    return this.servo_commanded_position[index] / 180.0;
   };
 
   this.calculate_speed = function() {
@@ -598,6 +609,29 @@ function Robot() {
     this.trail.push([this.x, this.y]);
   };
 
+  // Delta is in milliseconds.
+  this.update_servos = function(delta_ms) {
+    var delta = this.servo_speed * delta_ms;
+    for (var i = 0; i < 2; i++) {
+      if (this.servo_actual_position[i] < this.servo_commanded_position[i]) {
+        this.servo_actual_position[i] += delta;
+        this.servo_actual_position[i] = Math.min(
+          this.servo_actual_position[i],
+          this.servo_commanded_position[i],
+          180.0);
+        console.log(i, this.servo_actual_position[i], this.servo_commanded_position[i]);
+      } else if (this.servo_actual_position[i] >
+                 this.servo_commanded_position[i]) {
+        this.servo_actual_position[i] -= delta;
+        this.servo_actual_position[i] = Math.max(
+          this.servo_actual_position[i],
+          this.servo_commanded_position[i],
+          0.0);
+        console.log(i, this.servo_actual_position[i], this.servo_commanded_position[i]);
+      }
+    }
+  };
+
   this.update = function(delta) {
     var delta_sec = delta / 1000;
 
@@ -605,6 +639,8 @@ function Robot() {
     this.calculate_position(delta_sec);
     this.update_encoders(delta_sec);
     this.update_trail();
+
+    this.update_servos(delta);
   };
 }
 
