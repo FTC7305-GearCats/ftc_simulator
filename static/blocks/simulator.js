@@ -388,26 +388,29 @@ function Robot() {
   // Positive values correspond to positive motor rotation:
   //  right => moves the robot forward.
   //  left => moves the robot backard.
-  // Order is FL, FR, BL, BR.
-  this.omega = [0.0, 0.0, 0.0, 0.0];
+  // Order is FL, FR, BL, BR plus extras Motor1, Motor2, Motor3.
+  this.omega = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
   // Directions of each motor, either -1 or 1.
   // Relative to motor itself.
   // Right motors, positive direction moves the robot forward.
   // Left motors, positive direction moves the robot backward.
-  this.direction = [1, 1, 1, 1];
+  this.direction = [1, 1, 1, 1, 1, 1, 1];
 
   // Current tick count for each motor.
-  this.encoder_ticks = [0.0, 0.0, 0.0, 0.0];
+  this.encoder_ticks = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
   // Target position for each motor.
-  this.target_position = [null, null, null, null];
+  this.target_position = [null, null, null, null, null, null, null];
   // Mode of each motor.
   this.mode = ["RUN_WITHOUT_ENCODER",
                "RUN_WITHOUT_ENCODER",
                "RUN_WITHOUT_ENCODER",
+               "RUN_WITHOUT_ENCODER",
+               "RUN_WITHOUT_ENCODER",
+               "RUN_WITHOUT_ENCODER",
                "RUN_WITHOUT_ENCODER"];
   // Busy flag for each motor.
-  this.motorIsBusy = [false, false, false, false];
+  this.motorIsBusy = [false, false, false, false, false, false, false];
 
   // Multiplication vectors.
   // Positive values move the robot forward.
@@ -423,7 +426,18 @@ function Robot() {
   this.motor_names =["FLmotorAsDcMotor",
                      "FRmotorAsDcMotor",
                      "BLmotorAsDcMotor",
-                     "BRmotorAsDcMotor"];
+                     "BRmotorAsDcMotor",
+                     "Motor1",
+                     "Motor2",
+                     "Motor3"];
+
+  // Servo config.
+  this.servo_direction = [1, 1];
+  this.servo_commanded_position = [0.0, 0.0];
+  this.servo_actual_position = [0.0, 0.0];
+
+  this.servo_names = ["Servo1",
+                      "Servo2"];
 
   // Points on the trail that the robot has traversed.
   this.trail_add_point = false;
@@ -487,6 +501,34 @@ function Robot() {
       return false;
     }
     return this.motorIsBusy[index];
+  };
+
+  this.setServoDirection = function(servo, dir) {
+    var index = this.servo_names.indexOf(servo);
+    if (index < 0) {
+      return;
+    }
+    if (dir == "FORWARD") {
+      this.servo_direction[index] = 1;
+    } else if (dir == "REVERSE") {
+      this.servo_direction[index] = -1;
+    }
+  };
+
+  this.setServoPosition = function(servo, target) {
+    var index = this.servo_names.indexOf(servo);
+    if (index < 0) {
+      return;
+    }
+    this.servo_commanded_position[index] = target;
+  };
+
+  this.getServoCommandedPosition = function(servo) {
+    var index = this.servo_names.indexOf(servo);
+    if (index < 0) {
+      return 0;
+    }
+    return this.servo_commanded_position[index];
   };
 
   this.calculate_speed = function() {
@@ -848,14 +890,14 @@ var createServoMotor = function(interpreter, scope, name) {
 
   interpreter.setProperty(motor, 'name', name);
 
-  var setDirection = function(mode) {
-    console.log("setDirection", mode, name);
+  var setDirection = function(dir) {
+    realRobot.setServoDirection(name, dir);
   };
   interpreter.setProperty(motor, 'setDirection',
       interpreter.createNativeFunction(setDirection));
 
   var setPosition = function(position) {
-    console.log("setPosition", position, name);
+    realRobot.setServoPosition(name, position);
   };
   interpreter.setProperty(motor, 'setPosition',
       interpreter.createNativeFunction(setPosition));
@@ -867,8 +909,7 @@ var createServoMotor = function(interpreter, scope, name) {
       interpreter.createNativeFunction(scaleRange));
 
   var getPosition = function() {
-    console.log("getPosition", name);
-    return 3.0;
+    return realRobot.getServoCommandedPosition(name);
   };
   interpreter.setProperty(motor, 'getPosition',
       interpreter.createNativeFunction(getPosition));
