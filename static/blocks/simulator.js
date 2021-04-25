@@ -627,7 +627,6 @@ function Robot() {
           this.servo_actual_position[i],
           this.servo_commanded_position[i],
           0.0);
-        console.log(i, this.servo_actual_position[i], this.servo_commanded_position[i]);
       }
     }
   };
@@ -730,6 +729,8 @@ function SimController() {
 
   this.robot_dom = document.getElementById('robot');
   this.trail_dom = document.getElementById('robot_trail');
+  this.servo1_dom = document.getElementById('servo1');
+  this.servo2_dom = document.getElementById('servo2');
 
   this.asyncWait = false;
 
@@ -822,6 +823,11 @@ function SimController() {
 
     update_trail(this.trail_dom);
     camera.update(realRobot.x, realRobot.y);
+
+    this.servo1_dom.setAttribute('transform',
+        `rotate(${realRobot.servo_actual_position[0]}, 40, 30)`);
+    this.servo2_dom.setAttribute('transform',
+        `rotate(${realRobot.servo_actual_position[1]}, 100, 30)`);
   };
 
   this.stop = function() {

@@ -248,6 +248,26 @@
              x="0" y="0"
              transform="rotate(180) translate(-21.77 -20.95)" />
       </svg>
+      <svg id="motors" width="500px" height="100px"
+           viewbox="0 0 500 100"
+           style="border: 0.1rem solid">
+        <defs>
+          <symbol id="servo">
+            <polygon stroke="black" points="15, 10 45, 10 30, 50"
+                     fill="transparent" stroke-width="3" />
+          </symbol>
+        </defs>
+        <use id="servo1"
+             xlink:href="#servo"
+             x="10" y="10"
+             transform="rotate(0, 40, 30)" />
+        <text x="20" y="80">Servo1</text>
+        <use id="servo2"
+             xlink:href="#servo"
+             x="70" y="10"
+             transform="rotate(0, 100, 30)" />
+        <text x="80" y="80">Servo2</text>
+      </svg>
     </div>
   </div>
 
