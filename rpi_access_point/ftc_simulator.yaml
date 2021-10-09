@@ -38,7 +38,7 @@
         group: dwatson
         mode: 0644
 
-    - name: Create venv for insteon programs.
+    - name: Create venv simulator.
       pip:
         requirements: /home/dwatson/work/ftc_simulator/src/requirements.txt
         virtualenv: /home/dwatson/work/ftc_simulator/src/venv
