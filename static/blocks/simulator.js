@@ -29,6 +29,14 @@ var telemetry = {
   }
 };
 
+function getGamepads() {
+  if (typeof navigator.getGamepads == 'function') {
+    return navigator.getGamepads();
+  } else {
+    return [];
+  }
+}
+
 function Gamepad() {
   this.gamepads = {};
 
@@ -46,7 +54,7 @@ function Gamepad() {
 
   this.poll = function() {
     // XXX Handle disconnecting.
-    var all_gamepads = navigator.getGamepads();
+    var all_gamepads = getGamepads();
     for (var i = 0; i < all_gamepads.length; i++) {
       if (all_gamepads[i]) {
         // XXX Handle multiple controllers.
@@ -217,7 +225,7 @@ function Keyboard() {
 
   this.poll = function() {
     // Look for a gamepad and switch if it shows up.
-    var all_gamepads = navigator.getGamepads();
+    var all_gamepads = getGamepads();
     for (var i = 0; i < all_gamepads.length; i++) {
       if (all_gamepads[i]) {
         gamepadController = new Gamepad();
