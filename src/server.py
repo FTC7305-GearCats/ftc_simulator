@@ -208,11 +208,11 @@ def rc_info():
 @application.route("/")
 def static_index():
     # XXX Hack, should just fix below to work correctly.
-    return bottle.static_file("index.html", root="../static")
+    return bottle.static_file("index.html", root="../static_new")
 
 @application.route("/<path:path>")
 def static(path):
-    return bottle.static_file(path, root="../static")
+    return bottle.static_file(path, root="../static_new")
 
 if __name__ == "__main__":
     #application.run(host="localhost", port=8080)
