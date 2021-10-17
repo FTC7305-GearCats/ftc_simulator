@@ -215,4 +215,5 @@ def static(path):
     return bottle.static_file(path, root="../static")
 
 if __name__ == "__main__":
-    application.run(host="localhost", port=8080)
+    #application.run(host="localhost", port=8080)
+    application.run(host="0.0.0.0", port=8080)
