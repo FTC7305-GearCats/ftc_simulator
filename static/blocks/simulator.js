@@ -379,8 +379,8 @@ function Robot() {
   this.quad_encoder_ticks = 1440;
 
   // Position/orientation in the svg world.
-  this.x = 0;
-  this.y = 0;
+  this.x = -22.0;
+  this.y = -91.4;
   // In radians, positve is clockwise.
   this.angle = Math.PI;
 
@@ -1001,7 +1001,7 @@ var initFunc = function(interpreter, scope) {
 function update_trail(dom) {
   // XXX Are arrow functions portable?
   var points = realRobot.trail.map(p => `L ${p[0]} ${p[1]}`);
-  dom.setAttribute('d', "M 0 0 " + points.join(' '));
+  dom.setAttribute('d', "M -22 -91.4 " + points.join(' '));
 }
 
 function runSimulator() {
