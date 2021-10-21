@@ -12,3 +12,6 @@ rg -l0 "if\s+\(window.location.protocol === 'file" static_new | \
 
 # Patch the html.
 patch -p1 < html.patch
+
+# Copy js files over.
+cp src_new/*.js static_new/js/
