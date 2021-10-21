@@ -9,3 +9,6 @@ rg -l0 "if\s+\(window.location.protocol === 'http" static_new | \
 rg -l0 "if\s+\(window.location.protocol === 'file" static_new | \
   xargs -0 sed -i "" \
   's/\(if[[:space:]]*(\)\(window.location.protocol === '\''file\)/\1true || \2/g'
+
+# Patch the html.
+patch -p1 < html.patch
