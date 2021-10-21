@@ -15,8 +15,8 @@
         mode: '0755'
       with_items:
         - { dir: 'work' }
-        - { dir: 'work/ftc_simulator' }
-        - { dir: 'work/ftc_simulator/src' }
+        - { dir: 'work/dynamic_version/ftc_simulator' }
+        - { dir: 'work/dynamic_version/ftc_simulator/src' }
 
     - name: Create www-data directories.
       file:
@@ -26,28 +26,28 @@
         state: directory
         mode: '0755'
       with_items:
-        - { dir: 'work/ftc_simulator/data' }
-        - { dir: 'work/ftc_simulator/data/programs' }
-        - { dir: 'work/ftc_simulator/data/samples' }
+        - { dir: 'work/dynamic_version/ftc_simulator/data' }
+        - { dir: 'work/dynamic_version/ftc_simulator/data/programs' }
+        - { dir: 'work/dynamic_version/ftc_simulator/data/samples' }
 
     - name: Copy requirements file.
       copy:
-        src: /Users/dwatson/work/ftc_simulator/src/requirements.txt
-        dest: /home/dwatson/work/ftc_simulator/src/requirements.txt
+        src: /Users/dwatson/work/dynamic_version/ftc_simulator/src/requirements.txt
+        dest: /home/dwatson/work/dynamic_version/ftc_simulator/src/requirements.txt
         owner: dwatson
         group: dwatson
         mode: 0644
 
     - name: Create venv simulator.
       pip:
-        requirements: /home/dwatson/work/ftc_simulator/src/requirements.txt
-        virtualenv: /home/dwatson/work/ftc_simulator/src/venv
+        requirements: /home/dwatson/work/dynamic_version/ftc_simulator/src/requirements.txt
+        virtualenv: /home/dwatson/work/dynamic_version/ftc_simulator/src/venv
         virtualenv_command: /usr/bin/python3 -m venv
 
     - name: Copy src files.
       copy:
-        src: /Users/dwatson/work/ftc_simulator/src/{{ item.src }}
-        dest: /home/dwatson/work/ftc_simulator/src/
+        src: /Users/dwatson/work/dynamic_version/ftc_simulator/src/{{ item.src }}
+        dest: /home/dwatson/work/dynamic_version/ftc_simulator/src/
         owner: dwatson
         group: dwatson
         mode: 0644
@@ -59,15 +59,15 @@
     - name: Copy samples.
       copy:
         src: "{{ item }}"
-        dest: /var/www/work/ftc_simulator/data/samples/
+        dest: /var/www/work/dynamic_version/ftc_simulator/data/samples/
         owner: www-data
         group: www-data
         mode: 0644
       with_fileglob:
-        - "/Users/dwatson/work/ftc_simulator/data/samples/*.blk"
+        - "/Users/dwatson/work/dynamic_version/ftc_simulator/data/samples/*.blk"
 
     - name: Copy static html files.
-      local_action: command rsync -av /Users/dwatson/work/ftc_simulator/static {{ inventory_hostname }}:~/
+      local_action: command rsync -av /Users/dwatson/work/dynamic_version/ftc_simulator/static {{ inventory_hostname }}:~/
       become: no
 
     - name: Move static files into the correct directory.

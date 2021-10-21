@@ -13,7 +13,8 @@ import urllib
 
 os.umask(0o022)
 
-data_dir = pathlib.Path.home() / "work" / "ftc_simulator" / "data"
+data_dir = (pathlib.Path.home() / "work" / "ftc_simulator" /
+            "dynamic_version" / "data")
 program_dir = data_dir / "programs"
 samples_dir = data_dir / "samples"
 

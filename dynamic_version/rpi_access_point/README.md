@@ -9,7 +9,7 @@ ansible-playbook access_point.yaml -i hosts --ask-become-pass
 
 # Set up the database (one time only):
 
-sudo -u www-data sqlite3 /var/www/work/ftc_simulator/data/blocks.db < ~dwatson/work/ftc_simulator/src/setup.sql
+sudo -u www-data sqlite3 /var/www/work/dynamic_version/ftc_simulator/data/blocks.db < ~dwatson/work/dynamic_version/ftc_simulator/src/setup.sql
 
 
 # To set up the usb console.
