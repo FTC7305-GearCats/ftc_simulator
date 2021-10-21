@@ -982,25 +982,13 @@ function projectAutoTransitionChanged() {
 }
 
 function showJavaChanged() {
-  var show_java = document.getElementById('show_java').checked;
-  var show_sim = document.getElementById('show_simulator').checked;
-  if (split) {
-    split.destroy();
-    split = null;
-  }
-  if (show_java || show_sim) {
-    initializeSplit(show_java, show_sim);
-  }
-  if (show_java) {
+  if (document.getElementById('show_java').checked) {
     javaArea.style.display = 'flex';
+    initializeSplit();
   } else {
+    if (split) split.destroy();
     blocksAndBannerArea.style.width="100%";
     javaArea.style.display = 'none';
-  }
-  if (show_sim) {
-    simulatorArea.style.display = 'flex';
-  } else {
-    simulatorArea.style.display = 'none';
   }
   resizeBlocklyArea();
   showJava();

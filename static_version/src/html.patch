@@ -1,7 +1,7 @@
-diff --git a/static_new/FtcOfflineBlocks.html b/static_new/FtcOfflineBlocks.html
+diff --git a/build/FtcOfflineBlocks.html b/build/FtcOfflineBlocks.html
 index 13359e8..7a8352b 100644
---- a/static_new/FtcOfflineBlocks.html
-+++ b/static_new/FtcOfflineBlocks.html
+--- a/build/FtcOfflineBlocks.html
++++ b/build/FtcOfflineBlocks.html
 @@ -22,20 +22,23 @@
    <script type="text/javascript" src="ftcblockly/generators/ftcjava/lists.js"></script>
    <script type="text/javascript" src="ftcblockly/generators/ftcjava/logic.js"></script>
@@ -181,10 +181,10 @@ index 13359e8..7a8352b 100644
    </xml>
  
    <div id="saveWithWarningsDialog" class="modal_dialog"><div class="modal_dialog_container"><div class="modal_dialog_content">
-diff --git a/static_new/blocks/FtcBlocks_common.js b/static_new/blocks/FtcBlocks_common.js
+diff --git a/build/blocks/FtcBlocks_common.js b/build/blocks/FtcBlocks_common.js
 index d9e623a..048c67b 100644
---- a/static_new/blocks/FtcBlocks_common.js
-+++ b/static_new/blocks/FtcBlocks_common.js
+--- a/build/blocks/FtcBlocks_common.js
++++ b/build/blocks/FtcBlocks_common.js
 @@ -975,28 +975,40 @@ function projectGroupChanged() {
    isDirty = true;
    showJava();

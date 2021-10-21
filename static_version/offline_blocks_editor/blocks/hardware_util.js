@@ -27,20 +27,20 @@
  * callback.
  */
 function fetchJavaScriptForHardware(callback) {
-  if (false /* window.location.protocol === 'http:' || window.location.protocol === 'https:' */) {
+  if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
     // html/js is in a browser, loaded as an http:// URL.
     fetchJavaScriptForHardwareViaHttp(callback);
-  } else if (true || window.location.protocol === 'file:') {
+  } else if (window.location.protocol === 'file:') {
     // html/js is in a browser, loaded as an file:// URL.
     fetchJavaScriptForHardwareViaFile(callback);
   }
 }
 
 function getConfigurationName(callback) {
-  if (false /* window.location.protocol === 'http:' || window.location.protocol === 'https:' */) {
+  if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
     // html/js is in a browser, loaded as an http:// URL.
     getConfigurationNameViaHttp(callback);
-  } else if (true || window.location.protocol === 'file:') {
+  } else if (window.location.protocol === 'file:') {
     // html/js is in a browser, loaded as an file:// URL.
     getConfigurationNameViaFile(callback);
   }
@@ -50,7 +50,7 @@ function getConfigurationName(callback) {
  * Sends a ping request and calls the callback.
  */
 function sendPing(name, callback) {
-  if (false /* window.location.protocol === 'http:' || window.location.protocol === 'https:' */) {
+  if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
     // html/js is in a browser, loaded as an http:// URL.
     sendPingViaHttp(name, callback);
   } else {
