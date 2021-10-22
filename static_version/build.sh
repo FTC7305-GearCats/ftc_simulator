@@ -11,13 +11,13 @@ cp -av offline_blocks_editor build
 
 # Force the http logic to always fail.
 grep -rl --null "window.location.protocol" build | \
-  xargs -0 sed -i "" \
-  's/\(if[[:space:]]*(\)\(window.location.protocol === '\''http.*\))/\1false \/* \2 *\/)/g'
+  xargs -0 perl -0777 -pi -e \
+  's/(if\s*\()(window.location.protocol === '\''http.*)\)/\1false \/* \2 *\/)/g'
 
 # Force the localhost logic to always succeed.
 grep -rl --null "window.location.protocol" build | \
-  xargs -0 sed -i "" \
-  's/\(if[[:space:]]*(\)\(window.location.protocol === '\''file\)/\1true || \2/g'
+  xargs -0 perl -0777 -pi -e \
+  's/(if\s*\()(window.location.protocol === '\''file)/\1true || \2/g'
 
 # Remove any default blocks.
 perl -0777 -pi -e 's/var BLK_FILES = \[\n.*\];\n  return BLK_FILES;/var BLK_FILES = \[\n  \];\n  return BLK_FILES;/igs' build/js/FtcOfflineBlocks.js
