@@ -24,3 +24,8 @@ patch -p1 < src/html.patch
 
 # Copy js files over.
 cp src/*.js build/js/
+
+# Copy the keyboard page over.
+cp src/keyboard.html build/
+mkdir build/images
+cp src/keyboard_layout.jpg build/images/
