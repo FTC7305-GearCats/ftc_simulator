@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+
+# Force the script to fail on errors
+set -euxo pipefail
 
 # Delete any existing build directory.
 rm -rf build
@@ -7,12 +10,12 @@ rm -rf build
 cp -av offline_blocks_editor build
 
 # Force the http logic to always fail.
-rg -l0 "if\s+\(window.location.protocol === 'http" build | \
+grep -rl --null "window.location.protocol" build | \
   xargs -0 sed -i "" \
   's/\(if[[:space:]]*(\)\(window.location.protocol === '\''http.*\))/\1false \/* \2 *\/)/g'
 
 # Force the localhost logic to always succeed.
-rg -l0 "if\s+\(window.location.protocol === 'file" build | \
+grep -rl --null "window.location.protocol" build | \
   xargs -0 sed -i "" \
   's/\(if[[:space:]]*(\)\(window.location.protocol === '\''file\)/\1true || \2/g'
 
