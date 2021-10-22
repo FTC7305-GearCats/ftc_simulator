@@ -16,6 +16,9 @@ rg -l0 "if\s+\(window.location.protocol === 'file" build | \
   xargs -0 sed -i "" \
   's/\(if[[:space:]]*(\)\(window.location.protocol === '\''file\)/\1true || \2/g'
 
+# Remove any default blocks.
+perl -0777 -pi -e 's/var BLK_FILES = \[\n.*\];\n  return BLK_FILES;/var BLK_FILES = \[\n  \];\n  return BLK_FILES;/igs' build/js/FtcOfflineBlocks.js
+
 # Patch the html.
 patch -p1 < src/html.patch
 
