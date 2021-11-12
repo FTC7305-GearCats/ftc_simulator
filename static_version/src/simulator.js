@@ -989,6 +989,7 @@ var initFunc = function(interpreter, scope) {
   createServoMotor(interpreter, scope, "LeftGrabberAsServo");
 
   createGamepad(interpreter, scope, "gamepad1");
+  createGamepad(interpreter, scope, "gamepad2");
 
   var highlightBlock = function(id) {
     workspace.highlightBlock(id);
