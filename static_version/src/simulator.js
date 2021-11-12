@@ -396,7 +396,7 @@ function Robot() {
   // Positive values correspond to positive motor rotation:
   //  right => moves the robot forward.
   //  left => moves the robot backard.
-  // Order is FL, FR, BL, BR plus extras Motor1, Motor2, Motor3.
+  // Order is FL, FR, BL, BR plus extras Extension, Carousel, Shoulder.
   this.omega = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
   // Directions of each motor, either -1 or 1.
@@ -435,9 +435,9 @@ function Robot() {
                      "FRmotorAsDcMotor",
                      "BLmotorAsDcMotor",
                      "BRmotorAsDcMotor",
-                     "Motor1AsDcMotor",
-                     "Motor2AsDcMotor",
-                     "Motor3AsDcMotor"];
+                     "ExtensionAsDcMotor",
+                     "CarouselAsDcMotor",
+                     "ShoulderAsDcMotor"];
 
   // Servo config.
 
@@ -452,8 +452,8 @@ function Robot() {
   this.servo_commanded_position = [0.0, 0.0];
   this.servo_actual_position = [0.0, 0.0];
 
-  this.servo_names = ["Servo1AsServo",
-                      "Servo2AsServo"];
+  this.servo_names = ["LeftGrabberAsServo",
+                      "RightGrabberAsServo"];
 
   // Points on the trail that the robot has traversed.
   this.trail_add_point = false;
@@ -981,12 +981,12 @@ var initFunc = function(interpreter, scope) {
   createDcMotor(interpreter, scope, "FRmotorAsDcMotor");
   createDcMotor(interpreter, scope, "BLmotorAsDcMotor");
   createDcMotor(interpreter, scope, "BRmotorAsDcMotor");
-  createDcMotor(interpreter, scope, "Motor1AsDcMotor");
-  createDcMotor(interpreter, scope, "Motor2AsDcMotor");
-  createDcMotor(interpreter, scope, "Motor3AsDcMotor");
+  createDcMotor(interpreter, scope, "ExtensionAsDcMotor");
+  createDcMotor(interpreter, scope, "CarouselAsDcMotor");
+  createDcMotor(interpreter, scope, "ShoulderAsDcMotor");
 
-  createServoMotor(interpreter, scope, "Servo1AsServo");
-  createServoMotor(interpreter, scope, "Servo2AsServo");
+  createServoMotor(interpreter, scope, "RightGrabberAsServo");
+  createServoMotor(interpreter, scope, "LeftGrabberAsServo");
 
   createGamepad(interpreter, scope, "gamepad1");
 
