@@ -962,6 +962,25 @@ var createServoMotor = function(interpreter, scope, name) {
       interpreter.createNativeFunction(getPosition));
 };
 
+var createCRServo = function(interpreter, scope, name) {
+  var motor = interpreter.nativeToPseudo({});
+  interpreter.setProperty(scope, name, motor);
+
+  interpreter.setProperty(motor, 'name', name);
+
+  var setDirection = function(dir) {
+    realRobot.setDirection(name, dir);
+  };
+  interpreter.setProperty(motor, 'setDirection',
+      interpreter.createNativeFunction(setDirection));
+
+  var setPower = function(power) {
+    realRobot.setPower(name, power);
+  };
+  interpreter.setProperty(motor, 'setPower',
+      interpreter.createNativeFunction(setPower));
+}
+
 var initFunc = function(interpreter, scope) {
   var lom = interpreter.nativeToPseudo(linearOpMode);
   interpreter.setProperty(scope, 'linearOpMode', lom);
@@ -987,6 +1006,8 @@ var initFunc = function(interpreter, scope) {
 
   createServoMotor(interpreter, scope, "RightGrabberAsServo");
   createServoMotor(interpreter, scope, "LeftGrabberAsServo");
+
+  createCRServo(interpreter, scope, "WristAsCRServo");
 
   createGamepad(interpreter, scope, "gamepad1");
   createGamepad(interpreter, scope, "gamepad2");
