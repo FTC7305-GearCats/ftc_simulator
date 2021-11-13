@@ -1,8 +1,0 @@
-[rpi]
-10.3.2.1
-
-[rpi:vars]
-ansible_python_interpreter=/usr/bin/python3
-
-[edison]
-edison
