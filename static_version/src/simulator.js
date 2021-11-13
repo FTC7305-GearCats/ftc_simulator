@@ -2,10 +2,24 @@ var realRobot;
 var camera;
 var simController;
 
+function getVariable(name) {
+  if (simController && simController.myInterpreter) {
+    const interp = simController.myInterpreter;
+    const scope = interp.global;
+    return interp.getProperty(scope, name);
+  }
+}
+
 var linearOpMode = {
   waitForStart: function() {
     self._startTime = Date.now();
     console.log(self._startTime);
+
+    simX = getVariable("simStartX") ?? realRobot.x;
+    simY = getVariable("simStartY") ?? realRobot.y;
+    simA = getVariable("simStartA") ?? realRobot.angle;
+    realRobot.resetStart(simX, simY, simA);
+    camera.reset(simX, simY);
   },
   opModeIsActive: function() {
     return true;
@@ -384,6 +398,9 @@ function Robot() {
   // In radians, positve is clockwise.
   this.angle = Math.PI;
 
+  this.startX = this.x;
+  this.startY = this.y;
+
   // Velocities relative to the robot.
   // x positive is forward.
   // z positive is to the right.
@@ -458,6 +475,16 @@ function Robot() {
   // Points on the trail that the robot has traversed.
   this.trail_add_point = false;
   this.trail = [];
+
+  this.resetStart = function(x, y, a) {
+    console.log("Setting start position", x, y, a);
+    this.x = x;
+    this.startX = x;
+    this.y = y;
+    this.startY = y;
+    this.angle = a;
+    this.trail = [];
+  };
 
   this.setDirection = function(motor, dir) {
     var index = this.motor_names.indexOf(motor);
@@ -663,6 +690,13 @@ function Camera() {
   this.last_max_x = -Infinity;
   this.last_min_y = Infinity;
   this.last_max_y = -Infinity;
+
+  this.reset = function(x, y) {
+    this.min_x = x;
+    this.max_x = x;
+    this.min_y = y;
+    this.max_y = y;
+  }
 
   this.update = function(x, y) {
     var delta, width, height;
@@ -1023,7 +1057,8 @@ var initFunc = function(interpreter, scope) {
 function update_trail(dom) {
   // XXX Are arrow functions portable?
   var points = realRobot.trail.map(p => `L ${p[0]} ${p[1]}`);
-  dom.setAttribute('d', "M -22 -91.4 " + points.join(' '));
+  dom.setAttribute('d', `M ${realRobot.startX} ${realRobot.startY} ` +
+                   points.join(' '));
 }
 
 function runSimulator() {
